@@ -19,10 +19,10 @@
   "document_noun": "output",
   "facets": [
     {
-      "key": "country",
+      "key": "country_code",
       "name": "Country",
       "type": "text",
-      "preposition": "covering",
+      "preposition": "called",
       "display_as_result_metadata": true,
       "filterable": true,
       "allowed_values": [
@@ -825,12 +825,539 @@
       ]
     },
     {
+      "key": "country_name",
+      "name": "Country name",
+      "type": "text",
+      "display_as_result_metadata": false,
+      "filterable": false
+    },
+    {
       "key": "published_date",
       "name": "Published",
       "short_name": "Published",
       "type": "date",
       "display_as_result_metadata": true,
       "filterable": false
+    },
+    {
+      "key": "theme",
+      "name": "Theme",
+      "type": "text",
+      "preposition": "called",
+      "display_as_result_metadata": true,
+      "filterable": true,
+      "allowed_values": [
+        {
+          "value": "Access%20to%20Healthcare",
+          "label": "Access to Healthcare"
+        },
+        {
+          "value": "Adaptation%20to%20Climate%20Change",
+          "label": "Adaptation to Climate Change"
+        },
+        {
+          "value": "Agricultural%20Innovation",
+          "label": "Agricultural Innovation"
+        },
+        {
+          "value": "Agriculture",
+          "label": "Agriculture"
+        },
+        {
+          "value": "Arms%20Control",
+          "label": "Arms Control"
+        },
+        {
+          "value": "Building%20peace%20and%20stability",
+          "label": "Building peace and stability"
+        },
+        {
+          "value": "Business%20Regulation",
+          "label": "Business Regulation"
+        },
+        {
+          "value": "Chronic%20Poverty",
+          "label": "Chronic Poverty"
+        },
+        {
+          "value": "Climate%20and%20Environment",
+          "label": "Climate and Environment"
+        },
+        {
+          "value": "Communicable%20Diseases",
+          "label": "Communicable Diseases"
+        },
+        {
+          "value": "Communication%20of%20DFID%20Research",
+          "label": "Communication of DFID Research"
+        },
+        {
+          "value": "Conflict%20Prevention",
+          "label": "Conflict Prevention"
+        },
+        {
+          "value": "Crops",
+          "label": "Crops"
+        },
+        {
+          "value": "Democratic%20Governance",
+          "label": "Democratic Governance"
+        },
+        {
+          "value": "Disability",
+          "label": "Disability"
+        },
+        {
+          "value": "ESRC/DFID%20Joint%20Research",
+          "label": "ESRC/DFID Joint Research"
+        },
+        {
+          "value": "Economic%20Growth",
+          "label": "Economic Growth"
+        },
+        {
+          "value": "Education",
+          "label": "Education"
+        },
+        {
+          "value": "Education%20Policy%20and%20Strategy",
+          "label": "Education Policy and Strategy"
+        },
+        {
+          "value": "Education%20in%20Fragile%20States",
+          "label": "Education in Fragile States"
+        },
+        {
+          "value": "Empowerment%20and%20Accountability",
+          "label": "Empowerment and Accountability"
+        },
+        {
+          "value": "Energy",
+          "label": "Energy"
+        },
+        {
+          "value": "Engineering",
+          "label": "Engineering"
+        },
+        {
+          "value": "Evidence%20Based%20Health%20Care",
+          "label": "Evidence Based Health Care"
+        },
+        {
+          "value": "Fisheries,%20Aquaculture%20and%20Fish%20Genetics",
+          "label": "Fisheries, Aquaculture and Fish Genetics"
+        },
+        {
+          "value": "Focus%20on%20Girls%20Education",
+          "label": "Focus on Girls Education"
+        },
+        {
+          "value": "Food%20Security",
+          "label": "Food Security"
+        },
+        {
+          "value": "Food%20and%20Nutrition",
+          "label": "Food and Nutrition"
+        },
+        {
+          "value": "Forests",
+          "label": "Forests"
+        },
+        {
+          "value": "Gender",
+          "label": "Gender"
+        },
+        {
+          "value": "Geoscience",
+          "label": "Geoscience"
+        },
+        {
+          "value": "Getting%20Kids%20into%20School",
+          "label": "Getting Kids into School"
+        },
+        {
+          "value": "Governance%20and%20Conflict",
+          "label": "Governance and Conflict"
+        },
+        {
+          "value": "Growth%20and%20Agriculture",
+          "label": "Growth and Agriculture"
+        },
+        {
+          "value": "HIV%20and%20AIDS",
+          "label": "HIV and AIDS"
+        },
+        {
+          "value": "Health",
+          "label": "Health"
+        },
+        {
+          "value": "Humanitarian%20Assistance%20and%20Disasters",
+          "label": "Humanitarian Assistance and Disasters"
+        },
+        {
+          "value": "Humanitarian%20Disasters%20and%20Emergencies",
+          "label": "Humanitarian Disasters and Emergencies"
+        },
+        {
+          "value": "Hunger%20Emergencies",
+          "label": "Hunger Emergencies"
+        },
+        {
+          "value": "ICTs%20in%20Education",
+          "label": "ICTs in Education"
+        },
+        {
+          "value": "Immunisation",
+          "label": "Immunisation"
+        },
+        {
+          "value": "Information%20and%20Communication%20Technologies%20(ICTs)",
+          "label": "Information and Communication Technologies (ICTs)"
+        },
+        {
+          "value": "Infrastructure",
+          "label": "Infrastructure"
+        },
+        {
+          "value": "International%20Communication%20Systems",
+          "label": "International Communication Systems"
+        },
+        {
+          "value": "International%20Information%20Systems",
+          "label": "International Information Systems"
+        },
+        {
+          "value": "Internet%20Services",
+          "label": "Internet Services"
+        },
+        {
+          "value": "Livestock%20Production",
+          "label": "Livestock Production"
+        },
+        {
+          "value": "Low%20Carbon%20Development",
+          "label": "Low Carbon Development"
+        },
+        {
+          "value": "Malaria",
+          "label": "Malaria"
+        },
+        {
+          "value": "Managing%20Water%20Resources",
+          "label": "Managing Water Resources"
+        },
+        {
+          "value": "Maternal,%20Neonatal%20and%20Child%20Health",
+          "label": "Maternal, Neonatal and Child Health"
+        },
+        {
+          "value": "Media%20and%20Broadcasting",
+          "label": "Media and Broadcasting"
+        },
+        {
+          "value": "Mental%20Health",
+          "label": "Mental Health"
+        },
+        {
+          "value": "Migration",
+          "label": "Migration"
+        },
+        {
+          "value": "Mines%20and%20Mine%20Action",
+          "label": "Mines and Mine Action"
+        },
+        {
+          "value": "Miscellaneous%20(Agriculture)",
+          "label": "Miscellaneous (Agriculture)"
+        },
+        {
+          "value": "Miscellaneous%20(Climate%20and%20Environment)",
+          "label": "Miscellaneous (Climate and Environment)"
+        },
+        {
+          "value": "Miscellaneous%20(Education)",
+          "label": "Miscellaneous (Education)"
+        },
+        {
+          "value": "Miscellaneous%20(Food%20and%20Nutrition)",
+          "label": "Miscellaneous (Food and Nutrition)"
+        },
+        {
+          "value": "Miscellaneous%20(Governance%20and%20Conflict)",
+          "label": "Miscellaneous (Governance and Conflict)"
+        },
+        {
+          "value": "Miscellaneous%20(Growth)",
+          "label": "Miscellaneous (Growth)"
+        },
+        {
+          "value": "Miscellaneous%20(Health)",
+          "label": "Miscellaneous (Health)"
+        },
+        {
+          "value": "Miscellaneous%20(Infrastructure)",
+          "label": "Miscellaneous (Infrastructure)"
+        },
+        {
+          "value": "Miscellaneous%20(Social%20Change)",
+          "label": "Miscellaneous (Social Change)"
+        },
+        {
+          "value": "Miscellaneous%20(Water%20and%20Sanitation)",
+          "label": "Miscellaneous (Water and Sanitation)"
+        },
+        {
+          "value": "Natural%20Resource%20Systems",
+          "label": "Natural Resource Systems"
+        },
+        {
+          "value": "Neglected%20Tropical%20Diseases",
+          "label": "Neglected Tropical Diseases"
+        },
+        {
+          "value": "Non-Communicable%20Diseases",
+          "label": "Non-Communicable Diseases"
+        },
+        {
+          "value": "Nutrition",
+          "label": "Nutrition"
+        },
+        {
+          "value": "Online%20Journals",
+          "label": "Online Journals"
+        },
+        {
+          "value": "Private%20Sector",
+          "label": "Private Sector"
+        },
+        {
+          "value": "Public%20Financial%20Management",
+          "label": "Public Financial Management"
+        },
+        {
+          "value": "Public%20Sector%20Reform",
+          "label": "Public Sector Reform"
+        },
+        {
+          "value": "Raising%20Standards%20in%20Education",
+          "label": "Raising Standards in Education"
+        },
+        {
+          "value": "Religion%20and%20Development",
+          "label": "Religion and Development"
+        },
+        {
+          "value": "Reproductive%20Health",
+          "label": "Reproductive Health"
+        },
+        {
+          "value": "Research%20Communication%20and%20Uptake",
+          "label": "Research Communication and Uptake"
+        },
+        {
+          "value": "Research%20Uptake,%20Evaluation%20and%20Capacity%20Building",
+          "label": "Research Uptake, Evaluation and Capacity Building"
+        },
+        {
+          "value": "Research%20into%20Use%20(Agriculture)",
+          "label": "Research into Use (Agriculture)"
+        },
+        {
+          "value": "Safe%20Drinking%20Water",
+          "label": "Safe Drinking Water"
+        },
+        {
+          "value": "Sanitation%20and%20Hygiene",
+          "label": "Sanitation and Hygiene"
+        },
+        {
+          "value": "Security,%20Justice%20and%20Rights",
+          "label": "Security, Justice and Rights"
+        },
+        {
+          "value": "Skills%20and%20Training",
+          "label": "Skills and Training"
+        },
+        {
+          "value": "Social%20Change",
+          "label": "Social Change"
+        },
+        {
+          "value": "Strengthening%20Health%20Systems",
+          "label": "Strengthening Health Systems"
+        },
+        {
+          "value": "Systematic%20Reviews",
+          "label": "Systematic Reviews"
+        },
+        {
+          "value": "Tackling%20Corruption",
+          "label": "Tackling Corruption"
+        },
+        {
+          "value": "Trade",
+          "label": "Trade"
+        },
+        {
+          "value": "Transport",
+          "label": "Transport"
+        },
+        {
+          "value": "Tuberculosis",
+          "label": "Tuberculosis"
+        },
+        {
+          "value": "Urbanisation",
+          "label": "Urbanisation"
+        },
+        {
+          "value": "Water%20and%20Sanitation",
+          "label": "Water and Sanitation"
+        },
+        {
+          "value": "Women%20and%20Business",
+          "label": "Women and Business"
+        },
+        {
+          "value": "Women,%20Peace%20and%20Security",
+          "label": "Women, Peace and Security"
+        },
+        {
+          "value": "Young%20Lives",
+          "label": "Young Lives"
+        }
+      ]
+    },
+    {
+      "key": "region",
+      "name": "Region",
+      "type": "text",
+      "preposition": "called",
+      "display_as_result_metadata": true,
+      "filterable": true,
+      "allowed_values": [
+        {
+          "label": "Africa",
+          "value": "2"
+        },
+        {
+          "label": "Americas",
+          "value": "19"
+        },
+        {
+          "label": "Asia",
+          "value": "142"
+        },
+        {
+          "label": "Australia and New Zealand",
+          "value": "53"
+        },
+        {
+          "label": "Caribbean",
+          "value": "29"
+        },
+        {
+          "label": "Central America",
+          "value": "13"
+        },
+        {
+          "label": "Central Asia",
+          "value": "143"
+        },
+        {
+          "label": "Central Europe",
+          "value": "152"
+        },
+        {
+          "label": "Eastern Africa",
+          "value": "14"
+        },
+        {
+          "label": "Eastern Asia",
+          "value": "30"
+        },
+        {
+          "label": "Eastern Europe",
+          "value": "151"
+        },
+        {
+          "label": "Europe",
+          "value": "150"
+        },
+        {
+          "label": "Global",
+          "value": "1"
+        },
+        {
+          "label": "Latin America and the Caribbean",
+          "value": "419"
+        },
+        {
+          "label": "Melanesia",
+          "value": "54"
+        },
+        {
+          "label": "Micronesia",
+          "value": "57"
+        },
+        {
+          "label": "Middle Africa",
+          "value": "17"
+        },
+        {
+          "label": "Northern Africa",
+          "value": "15"
+        },
+        {
+          "label": "Northern America",
+          "value": "21"
+        },
+        {
+          "label": "Northern Europe",
+          "value": "154"
+        },
+        {
+          "label": "Oceania",
+          "value": "9"
+        },
+        {
+          "label": "Polynesia",
+          "value": "61"
+        },
+        {
+          "label": "South America",
+          "value": "5"
+        },
+        {
+          "label": "South-Eastern Asia",
+          "value": "35"
+        },
+        {
+          "label": "Southern Africa",
+          "value": "18"
+        },
+        {
+          "label": "Southern Asia",
+          "value": "34"
+        },
+        {
+          "label": "Southern Europe",
+          "value": "39"
+        },
+        {
+          "label": "Western Africa",
+          "value": "11"
+        },
+        {
+          "label": "Western Asia",
+          "value": "145"
+        },
+        {
+          "label": "Western Europe",
+          "value": "155"
+        }
+      ]
     }
   ]
 }

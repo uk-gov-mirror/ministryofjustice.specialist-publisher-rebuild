@@ -1,7 +1,7 @@
 class DfidResearchOutput < Document
-  validates :country, presence: true
+  validates :country_code, presence: true
 
-  FORMAT_SPECIFIC_FIELDS = %i(country)
+  FORMAT_SPECIFIC_FIELDS = %i(country_code)
 
   attr_accessor(*FORMAT_SPECIFIC_FIELDS)
 
