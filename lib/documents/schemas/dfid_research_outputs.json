@@ -19,11 +19,18 @@
   "document_noun": "output",
   "facets": [
     {
-      "key": "country",
+      "key": "country_name",
+      "name": "Country",
+      "type": "text",
+      "display_as_result_metadata": true,
+      "filterable": false
+    },
+    {
+      "key": "country_code",
       "name": "Country",
       "type": "text",
       "preposition": "covering",
-      "display_as_result_metadata": true,
+      "display_as_result_metadata": false,
       "filterable": true,
       "allowed_values": [
         {
