@@ -3,7 +3,7 @@ class DfidResearchOutput < Document
   validates :dfid_theme, presence: true
 
   FORMAT_SPECIFIC_FIELDS = %i(
-    country first_published_at dfid_authors dfid_theme
+    country first_published_at dfid_authors dfid_theme dfid_review_status
   )
 
   attr_accessor(*FORMAT_SPECIFIC_FIELDS)
