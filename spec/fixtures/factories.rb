@@ -205,6 +205,7 @@ FactoryGirl.define do
           "dfid_authors" => ["Mr. Potato Head", "Mrs. Potato Head"],
           "dfid_theme" => ["infrastructure"],
           "first_published_at" => "2016-04-28",
+          "dfid_review_status" => "unreviewed",
           "bulk_published" => true
         }
       }
