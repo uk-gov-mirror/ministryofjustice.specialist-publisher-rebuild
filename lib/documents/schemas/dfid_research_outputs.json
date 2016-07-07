@@ -904,8 +904,8 @@
       "short_name": "Review Status",
       "type": "text",
       "preposition": "with review status",
-      "display_as_result_metadata": true,
-      "filterable": true,
+      "display_as_result_metadata": false,
+      "filterable": false,
       "allowed_values": [
         {
           "value": "unreviewed",
