@@ -9,7 +9,7 @@ RSpec.feature "Creating a new document", type: :feature do
             "organisations" => ["957eb4ec-089b-4f71-ba2a-dc69ac8919ea"]
         }
     }
-  end
+  end 
   # TODO: How to generalise this bit?
   let(:cma_case) { FactoryGirl.create(:cma_case)}
   let(:content_id) { cma_case['content_id'] }
