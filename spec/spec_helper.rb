@@ -65,10 +65,15 @@ RSpec.configure do |config|
   config.include(GdsApi::TestHelpers::PublishingApiV2)
   config.include(GdsApi::TestHelpers::Rummager)
   config.include(GdsApi::TestHelpers::EmailAlertApi)
+  config.filter_run_excluding journey: true unless ENV['JOURNEY']
 
   # Run specs in random order to surface order dependencies. If you find an
   # order dependency and want to debug it, you can fix the order by providing
   # the seed, which is printed after each run.
   #     --seed 1234
   config.order = "random"
+end
+
+Capybara::Webkit.configure do |config|
+  config.allow_url("specialist-publisher-rebuild.dev.gov.uk")
 end
