@@ -24,7 +24,6 @@ class DocumentPolicy < ApplicationPolicy
   end
 
   def writer?
-    binding.pry
     user_organisation_owns_document_type?
   end
 

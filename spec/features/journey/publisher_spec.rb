@@ -95,6 +95,39 @@ RSpec.feature "publisher journey test" do
     end
 
     it 'should publish a draft' do
+      # TODO check document is not publicly visible yet on finder
+
+      visit "http://specialist-publisher-rebuild.dev.gov.uk/#{document_route}"
+
+      click_link title
+
+      click_link "Publish"
+
+      click_link "OK"
+
+      expect(page).to have_content("View on website")
+      expect(page).not_to have_content("Preview draft")
+      expect(find("span.label.label-primary")).to have_content("published")
+      expect(all("div.panel-body")[0]).not_to have_content("Publish")
+      expect(all("div.panel-body")[1]).to have_content("Unpublish document")
+
+      # TODO check document is publicly visible on finder
+
+      click_link "View on website"
+
+      expect(page).to have_content("#{title}")
+      expect(page).to have_content("My Altered Body With A")
+
+      ##################################################################################################################
+      # RAIB
+      expect(page).to have_link("Bulletin", href: "")
+      expect(page).to have_link("Heavy rail", href: "")
+      ##################################################################################################################
+
+      visit "http://specialist-publisher-rebuild.dev.gov.uk/#{document_route}"
+      click_link title
+
+
     end
 
     it 'should edit and republish a report' do
