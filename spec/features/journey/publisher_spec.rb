@@ -2,6 +2,7 @@ require 'spec/spec_helper'
 
 RSpec.feature "publisher journey test" do
   before do
+    #### TODO THIS DOESN"T WORK"
     log_in_as_editor(:gds_editor)
   end
 
@@ -75,11 +76,7 @@ RSpec.feature "publisher journey test" do
       expect(page).to have_content("Editing #{title}")
       expect(page.status_code).to eq(200)
 
-      ##################################################################################################################
-      # RAIB
-      select "Heavy rail", from: "Railway type"
-      select "Bulletin", from: "Report type"
-      ##################################################################################################################
+      format_specific_entry
 
       fill_in "Body", with: "My Altered Body With A\n\n$CTA\n[Test call to action](https://www.gov.uk/test)\n$CTA"
 
@@ -118,11 +115,7 @@ RSpec.feature "publisher journey test" do
       expect(page).to have_content("#{title}")
       expect(page).to have_content("My Altered Body With A")
 
-      ##################################################################################################################
-      # RAIB
-      expect(page).to have_link("Bulletin", href: "")
-      expect(page).to have_link("Heavy rail", href: "")
-      ##################################################################################################################
+      format_specific_check
 
       visit "http://specialist-publisher-rebuild.dev.gov.uk/#{document_route}"
       click_link title
@@ -130,10 +123,18 @@ RSpec.feature "publisher journey test" do
 
     end
 
-    it 'should edit and republish a report' do
+    def format_specific_entry
+      if document_type == "RAIB Report"
+        select "Heavy rail", from: "Railway type"
+        select "Bulletin", from: "Report type"
+      end
     end
 
-    it 'add attachments?' do
+    def format_specific_check
+      if document_type == "RAIB Report"
+        expect(page).to have_link("Bulletin", href: "")
+        expect(page).to have_link("Heavy rail", href: "")
+      end
     end
 
     it 'should unpublish a document' do

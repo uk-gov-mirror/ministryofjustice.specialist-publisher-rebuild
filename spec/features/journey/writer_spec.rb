@@ -34,13 +34,7 @@ RSpec.feature "adding a section to a manual" do
       fill_in "Summary", with: "My Summary"
       fill_in "Body", with: "My Body With A\n\n$CTA\n[Test call to action](https://www.gov.uk/test)\n$CTA"
 
-      #####################################################################################################
-      # RAIB
-      # fill_in "Date of occurrence", with: "2016-01-01"
-
-      # CMA
-      select "Aerospace", from: "Market sector"
-      #####################################################################################################
+      format_specific_entry
 
       click_button "Save as draft"
 
@@ -75,6 +69,14 @@ RSpec.feature "adding a section to a manual" do
       visit "http://specialist-publisher-rebuild.dev.gov.uk/#{document_route}"
 
       expect(first("li.document")).to have_content("draft")
+    end
+
+    def format_specific_entry
+      if document_type == "RAIB Report"
+        fill_in "Date of occurrence", with: "2016-01-01"
+      elsif document_type == "CMA Case"
+        select "Aerospace", from: "Market sector"
+      end
     end
   end
 end
