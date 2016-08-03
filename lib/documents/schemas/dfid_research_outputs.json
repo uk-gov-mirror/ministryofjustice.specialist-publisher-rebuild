@@ -13,7 +13,10 @@
   "organisations": [
     "db994552-7644-404d-a770-a2fe659c661f"
   ],
-  "subscription_list_title_prefix": "Research for Development output",
+  "subscription_list_title_prefix": {
+    "singular": "Research for Development output",
+    "plural": "Research for Development outputs"
+  },
   "document_noun": "output",
   "facets": [
     {
