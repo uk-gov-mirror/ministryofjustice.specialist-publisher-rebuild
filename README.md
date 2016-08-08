@@ -98,3 +98,7 @@ The rebuild app can then be accessed in two ways.
 2. At `specialist-publisher-rebuild-standalone.integration.publishing.service.gov.uk`: This is an integration-only instance of the app running only specialist-publisher-rebuild code.
 
 When a format is ready to deploy to production, add the endpoint to this [puppet configuration](https://github.com/alphagov/govuk-puppet/blob/master/modules/govuk/manifests/node/s_backend_lb.pp#L48). This will configure Nginx to route requests for those endpoints to be handled by this app.
+
+## Tools for users
+
+This project serves a [tools page](https://alphagov.github.io/specialist-publisher-rebuild) containing bookmarklets for editors and publishers. It's hosted by Github Pages. Modify `index.html` and push to the `gh-pages` branch to update. 
