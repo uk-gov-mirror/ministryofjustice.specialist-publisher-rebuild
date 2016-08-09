@@ -9,9 +9,10 @@ RSpec.feature "Creating a new document", type: :feature do
             "organisations" => ["957eb4ec-089b-4f71-ba2a-dc69ac8919ea"]
         }
     }
-  end 
+  end
+
   # TODO: How to generalise this bit?
-  let(:cma_case) { FactoryGirl.create(:cma_case)}
+  let(:cma_case) { FactoryGirl.create(:cma_case) }
   let(:content_id) { cma_case['content_id'] }
   let(:save_button_disable_with_message) { page.find_button('Save as draft')["data-disable-with"] }
 
@@ -40,44 +41,44 @@ RSpec.feature "Creating a new document", type: :feature do
     expect(page.current_path).to eq("/cma-cases/new")
   end
 
-  # scenario "Add a New Document" do
-  #   visit document_root
-  #   click_link add_link
-  #
-  #   expect_page_to_have_common_content
-  #
-  #   enter_no_data_for_common_fields
-  #   enter_no_data_for_specific_fields         # abstract away somehow
-  #
-  #   expect(save_button_disable_with_message).to eq("Saving...")
-  #
-  #   click_button save_button
-  #
-  #   expect_no_data_for_common_fields
-  #   expect_no_data_for_specific_fields        # abstract away somehow
-  #
-  #   enter_invalid_data_for_common_fields
-  #   enter_invalid_data_for_specific_fields    # abstract away somehow
-  #
-  #   click_button save_button
-  #
-  #   expect_invalid_data_for_common_fields
-  #   expect_invalid_data_for_specific_fields   # abstract away somehow
-  #
-  #   enter_valid_data_for_common_fields
-  #   enter_valid_data_for_specific_fields      # abstract away somehow
-  #
-  #   click_button save_button
-  #
-  #   expect_valid_data_for_common_fields
-  #   expect_valid_data_for_specific_fields     # abstract away somehow
-  #
-  #   expect_draft_document_page_state
-  #
-  #   expect(page.status_code).to eq(200)
-  #   expect(page).to have_content("Created Example Document")
-  #   expect(page).to have_content('Bulk published false')
-  # end
+  scenario "Add a New Document" do
+    visit document_root
+    click_link add_link
+
+    expect_page_to_have_common_content
+
+    enter_no_data_for_common_fields
+    enter_no_data_for_specific_fields         # abstract away somehow
+
+    expect(save_button_disable_with_message).to eq("Saving...")
+
+    click_button save_button
+
+    expect_no_data_for_common_fields
+    expect_no_data_for_specific_fields        # abstract away somehow
+
+    enter_invalid_data_for_common_fields
+    enter_invalid_data_for_specific_fields    # abstract away somehow
+
+    click_button save_button
+
+    expect_invalid_data_for_common_fields
+    expect_invalid_data_for_specific_fields   # abstract away somehow
+
+    enter_valid_data_for_common_fields
+    enter_valid_data_for_specific_fields      # abstract away somehow
+
+    click_button save_button
+
+    expect_valid_data_for_common_fields
+    expect_valid_data_for_specific_fields     # abstract away somehow
+
+    expect_draft_document_page_state
+
+    expect(page.status_code).to eq(200)
+    expect(page).to have_content("Created Example Document")
+    expect(page).to have_content('Bulk published false')
+  end
 
   def expect_page_to_have_common_content
     expect(page).to have_css('div.govspeak-help')
