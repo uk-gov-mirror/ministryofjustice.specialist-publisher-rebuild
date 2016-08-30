@@ -66,6 +66,11 @@ class Attachment < Document
     filename.split('.').first
   end
 
+  def delete
+    return true
+    # response = Services.asset_api.delete_asset(file: @file)
+  end
+
   def filename
     url.split('/').last
   end

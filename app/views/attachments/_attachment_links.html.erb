@@ -16,6 +16,10 @@
                   @document.content_id,
                   attachment.content_id)
               %>
+              <%= link_to "delete", destroy_document_attachment_path(params[:document_type_slug],
+                                                                     @document.content_id,
+                                                                     attachment.content_id)
+              %>
               <%= attachment.snippet %>
             </li>
         <% end %>

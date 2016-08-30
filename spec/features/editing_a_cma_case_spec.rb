@@ -315,6 +315,7 @@ RSpec.feature "Editing a CMA case", type: :feature do
           },
         )
 
+        expect(page).not_to have_link("Delete", href: "/")
         click_link "Add attachment"
         expect(page.status_code).to eq(200)
 
@@ -347,6 +348,7 @@ RSpec.feature "Editing a CMA case", type: :feature do
           .with(body: %r{.*})
           .to_return(body: asset_manager_response.to_json, status: 500)
 
+        expect(page).to have_link("Delete", href: "/")
         find('.attachments').first(:link, "edit").click
         expect(page.status_code).to eq(200)
         expect(find('#attachment_title').value).to eq('asylum report image title')
