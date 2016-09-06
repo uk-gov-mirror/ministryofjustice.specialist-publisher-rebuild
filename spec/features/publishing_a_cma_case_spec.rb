@@ -96,8 +96,10 @@ RSpec.feature "Publishing a CMA case", type: :feature do
       visit "/cma-cases"
       click_link "Example CMA Case"
 
-      expect(page).to have_no_selector(:button, 'Publish')
+      find(".btn-success")
+      puts page.body
       expect(page).to have_content("You don't have permission to publish this document.")
+      # expect(page).to have_no_selector(:button, 'Publish')
     end
   end
 
