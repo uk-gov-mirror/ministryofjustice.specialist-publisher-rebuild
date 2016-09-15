@@ -34,7 +34,7 @@ class AttachmentCollection
   end
 
   def remove(attachment)
-    if attachment.delete
+    if attachment.destroy
       @attachments.delete(attachment)
     else
       false

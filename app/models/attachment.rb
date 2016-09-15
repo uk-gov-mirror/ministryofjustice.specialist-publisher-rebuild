@@ -66,9 +66,11 @@ class Attachment < Document
     filename.split('.').first
   end
 
-  def delete
-    return true
-    # response = Services.asset_api.delete_asset(file: @file)
+  def destroy
+    Services.asset_api.delete_asset(id_from_url)
+  rescue GdsApi::BaseError => e
+    Airbrake.notify(e)
+    false
   end
 
   def filename

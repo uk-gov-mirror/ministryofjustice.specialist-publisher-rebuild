@@ -329,7 +329,7 @@ class Document
 
   def delete_attachment(attachment)
     if attachments.remove(attachment)
-      save
+      save(validate: false)
     else
       false
     end
