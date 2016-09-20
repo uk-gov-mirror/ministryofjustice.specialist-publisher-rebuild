@@ -10,7 +10,7 @@ Rails.application.routes.draw do
     post :publish, on: :member
 
     resources :sections, param: :content_id, except: :destroy, controller: "manual_sections" do
-      resources :attachments, controller: 'manual_sections_attachments', param: :attachment_content_id, only: [:new, :create, :edit, :update]
+      resources :attachments, controller: 'manual_sections_attachments', param: :attachment_content_id, except: [:index, :show]
 
       get :reorder, on: :collection
       post :update_order, on: :collection
@@ -18,7 +18,7 @@ Rails.application.routes.draw do
   end
 
   resources :documents, path: "/:document_type_slug", param: :content_id, except: :destroy do
-    resources :attachments, param: :attachment_content_id, only: [:new, :create, :edit, :update]
+    resources :attachments, param: :attachment_content_id, except: [:index, :show]
 
     post :unpublish, on: :member
     post :publish, on: :member

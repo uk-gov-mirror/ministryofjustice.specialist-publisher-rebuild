@@ -8,6 +8,9 @@ class DocumentPolicy < ApplicationPolicy
   alias_method :edit?, :index?
   alias_method :update?, :index?
   alias_method :show?, :index?
+  # FIXME
+  # TODO is this the wrong way to permit a user to delete a document attachment
+  alias_method :destroy?, :index?
 
   def publish?
     gds_editor? || departmental_editor?

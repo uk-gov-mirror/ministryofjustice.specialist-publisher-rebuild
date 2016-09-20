@@ -408,6 +408,18 @@ RSpec.feature "Editing a CMA case", type: :feature do
         expect(page).to have_content("Editing Example CMA Case")
       end
 
+      scenario "deleting an attachment on a CMA case" do
+        stub_request(:delete, %r{#{Plek.find('asset-manager')}/assets/.*})
+          .to_return(body: asset_manager_response.to_json, status: 200)
+        find('.attachments').first(:link, "delete").click
+        expect(page.status_code).to eq(200)
+
+        expect(page).not_to have_content('asylum-support-image.jpg')
+
+        expect(page.status_code).to eq(200)
+        expect(page).to have_content("Editing Example CMA Case")
+      end
+
       scenario "previewing GovSpeak", js: true do
         fill_in "Body", with: "$CTA some text $CTA"
 

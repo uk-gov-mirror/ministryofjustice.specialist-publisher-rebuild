@@ -57,6 +57,13 @@ class Attachment < Document
     false
   end
 
+  def destroy
+    Services.asset_api.delete_asset(id_from_url)
+  rescue GdsApi::BaseError => e
+    Airbrake.notify(e)
+    false
+  end
+
   def id_from_url
     url_array = @url.split('/')
     url_array[url_array.length - 2]

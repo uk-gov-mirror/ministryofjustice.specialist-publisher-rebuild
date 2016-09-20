@@ -41,6 +41,17 @@ class AttachmentsController < ApplicationController
     end
   end
 
+  def destroy
+    @document = fetch_document
+    attachment = @document.attachments.find(attachment_content_id)
+    if attachment.destroy
+      flash[:success] = "Attachment deleted"
+    else
+      flash[:danger] = "There was an error deleting the attachment, please try again later."
+    end
+    redirect_to edit_document_path(document_type_slug, @document.content_id)
+  end
+
 private
 
   def flag_updated(document, attachment)
