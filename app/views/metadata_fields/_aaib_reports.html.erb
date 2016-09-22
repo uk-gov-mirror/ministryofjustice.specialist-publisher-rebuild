@@ -1,5 +1,11 @@
 <%= render layout: "shared/form_group", locals: { f: f, field: :date_of_occurrence } do %>
-  <%= f.text_field :date_of_occurrence, placeholder: '2012-04-23', class: 'form-control' %>
+  <p class="form-hint">For example: 2013 03 20</p>
+  <%= f.label :name, 'Year' %>
+  <%= f.text_field :date_of_occurrence_dateyear, class: 'form-date', type:"number", pattern:"[0-9]*", min:"0", max:"3000", placeholder: '2013' %>
+  <%= f.label :name, 'Month' %>
+  <%= f.text_field :date_of_occurrence_datemonth, class: 'form-date', type: "number", pattern: "[0-9]*", min: "0", max: "12", placeholder: '03' %>
+  <%= f.label :name, 'Day' %>
+  <%= f.text_field :date_of_occurrence_dateday, class: "form-date", type: "number", patter: "[0-9]*", min:"0", max:"31", placeholder: '20' %>
 <% end %>
 <%= render layout: "shared/form_group", locals: { f: f, field: :aircraft_type } do %>
   <%= f.text_field :aircraft_type, class: 'form-control' %>

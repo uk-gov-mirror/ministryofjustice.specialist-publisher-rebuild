@@ -163,7 +163,8 @@ class Document
       humanized_name = finder_schema.humanized_facet_name(key)
       humanized_value = finder_schema.humanized_facet_value(key, value)
 
-      attributes.merge(humanized_name => humanized_value)
+      all_attributes = attributes.merge(humanized_name => humanized_value)
+      all_attributes.delete_if {|key, value| ['dateday','datemonth','dateyear'].any? { |word| key.to_s.include?(word) } }
     end
   end
 
