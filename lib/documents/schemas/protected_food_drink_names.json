@@ -28,7 +28,8 @@
         {"label": "Spirit drinks","value": "spirit-drinks"},
         {"label": "Wines","value": "wines"},
         {"label": "Aromatised wines","value": "aromatised-wines"},
-        {"label": "Traditional terms for wine","value": "traditional-terms-for-wine"}
+        {"label": "Traditional terms for wine","value": "traditional-terms-for-wine"},
+        {"label": "Names protected by international treaty", "value": "names-protected-by-international-treaty"}
       ]
     },
     {
@@ -156,7 +157,8 @@
         {"label": "Protected Designation of Origin (PDO)","value": "protected-designation-of-origin-pdo"},
         {"label": "Traditional Speciality Guaranteed (TSG)","value": "traditional-speciality-guaranteed-tsg"},
         {"label": "Traditional Term","value": "traditional-term"},
-        {"label": "Geographical Indication (GI)","value": "geographical-indication-gi"}
+        {"label": "Geographical Indication (GI)","value": "geographical-indication-gi"},
+        {"label": "Names protected by international treaty", "value": "name-protected-by-international-treaty"}
       ]
     },
     {
