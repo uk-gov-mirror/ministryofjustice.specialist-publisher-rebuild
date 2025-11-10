@@ -64,6 +64,7 @@
       "key": "digital_markets_regime_requirements_status",
       "name": "Status",
       "preposition": "Status",
+      "short_name": "Status",
       "specialist_publisher_properties": {
         "select": "one",
         "validations": {
@@ -90,6 +91,7 @@
   "filter": {
     "format": "digital_markets_regime_requirement"
   },
+  "integration_target_stack": "live",
   "name": "Digital markets regime requirements",
   "organisations": [
     "957eb4ec-089b-4f71-ba2a-dc69ac8919ea"
