@@ -1,0 +1,54 @@
+{
+  "content_id": "da025a9f-8293-4fef-869c-12445d364696",
+  "base_path": "/service-standard-reports",
+  "name": "Service Standard Reports",
+  "format_name": "Service Assessment and Self Certification",
+  "description": "A list of service assessments and self certifications",
+  "show_summaries": true,
+  "organisations": ["2fb482e7-3c4d-496f-887d-f8a55a15e89a"],
+  "document_noun": "report",
+  "default_order": "-assessment_date",
+  "filter": {
+    "format": "service_standard_report"
+  },
+  "facets": [
+    {
+      "key": "assessment_date",
+      "name": "Assessment date",
+      "short_name": "Assessed",
+      "type": "date",
+      "preposition": "assessed",
+      "display_as_result_metadata": true,
+      "filterable": true
+    },
+    {
+      "key": "result",
+      "name": "Result",
+      "short_name": "Result",
+      "type": "text",
+      "display_as_result_metadata": true,
+      "filterable": true,
+      "allowed_values": [
+        {"label": "Met", "value": "met"},
+        {"label": "Not met", "value": "not-met"}
+      ]
+    },
+    {
+      "key": "stage",
+      "name": "Stage",
+      "short_name": "Stage",
+      "type": "text",
+      "display_as_result_metadata": true,
+      "filterable": true,
+      "allowed_values": [
+        {"label": "Alpha", "value": "alpha"},
+        {"label": "Alpha reassessment", "value": "alpha-reassessment"},
+        {"label": "Beta", "value": "beta"},
+        {"label": "Beta reassessment", "value": "beta-reassessment"},
+        {"label": "Live", "value": "live"},
+        {"label": "Live reassessment", "value": "live-reassessment"},
+        {"label": "Live review", "value": "live-review"}
+      ]
+    }
+  ]
+}

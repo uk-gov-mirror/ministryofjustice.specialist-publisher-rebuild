@@ -1,5 +1,6 @@
 class ActionsPresenter
   include Rails.application.routes.url_helpers
+  include ActionView::Helpers::TagHelper
 
   attr_accessor :document, :policy
 
@@ -9,7 +10,7 @@ class ActionsPresenter
   end
 
   def edit_path
-    edit_document_path(slug, document.content_id)
+    edit_document_path(slug, document.content_id_and_locale)
   end
 
   def publish_button_visible?
@@ -18,25 +19,28 @@ class ActionsPresenter
 
   def publish_text
     if state == "published"
-      text = "<p>There are no changes to publish.</p>"
+      "There are no changes to publish."
     elsif state == "unpublished"
-      text = "<p>The document is unpublished. You need to create a new draft before it can be published.</p>"
+      "The document is unpublished. You need to create a new draft before it can be published."
     elsif !policy.publish?
-      text = "<p>You don't have permission to publish this document.</p>"
+      "You don't have permission to publish this document."
     elsif update_type == "minor"
-      text = "<p>You are about to publish a <strong>minor edit</strong>.</p>"
+      safe_join([
+        tag.span("You are about to publish a "),
+        tag.strong("minor edit."),
+      ])
     elsif update_type == "major" && !document.first_draft?
-      text = "<p><strong>You are about to publish a major edit with a public change note.</strong></p>"
-      text += "<p>Publishing will email subscribers to #{klass_name}.</p>"
+      safe_join([
+        tag.strong("You are about to publish a major edit with a public change note. "),
+        tag.span("Publishing will email subscribers to #{klass_name}."),
+      ])
     else
-      text = "<p>Publishing will email subscribers to #{klass_name}.</p>"
+      "Publishing will email subscribers to #{klass_name}."
     end
-
-    text.html_safe
   end
 
   def publish_alert
-    if update_type == 'minor'
+    if update_type == "minor"
       "You are about to publish a minor edit. Continue?"
     else
       "Publishing will email subscribers to #{document.class.title.pluralize}. Continue?"
@@ -44,7 +48,7 @@ class ActionsPresenter
   end
 
   def publish_path
-    publish_document_path(slug, document.content_id)
+    publish_document_path(slug, document.content_id_and_locale)
   end
 
   def unpublish_button_visible?
@@ -53,20 +57,20 @@ class ActionsPresenter
 
   def unpublish_text
     if document.first_draft?
-      text = "<p>The document has never been published.</p>"
+      text = "The document has never been published."
     elsif state == "draft"
-      text = "<p>The document cannot be unpublished because it has a draft. You need to publish the draft first.</p>"
+      text = "The document cannot be unpublished because it has a draft. You need to publish the draft first."
     elsif state == "unpublished"
-      text = "<p>The document is already unpublished.</p>"
+      text = "The document is already unpublished."
     elsif !policy.unpublish?
-      text = "<p>You don't have permission to unpublish this document.</p>"
+      text = "You don't have permission to unpublish this document."
     elsif state == "published"
-      text = "<p>The document will be removed from the site. It will still be possible to edit and publish a new version.</p>"
+      text = "The document will be removed from the site. It will still be possible to edit and publish a new version."
     else
       raise ArgumentError, "Unrecognised state: '#{state}'"
     end
 
-    text.html_safe
+    text
   end
 
   def unpublish_alert
@@ -74,7 +78,31 @@ class ActionsPresenter
   end
 
   def unpublish_path
-    unpublish_document_path(slug, document.content_id)
+    unpublish_document_path(slug, document.content_id_and_locale)
+  end
+
+  def discard_button_visible?
+    policy.discard? && document.draft?
+  end
+
+  def discard_text
+    text = if state != "draft"
+             "There is no draft to discard."
+           elsif !policy.discard?
+             "You don't have permission to discard this draft."
+           else
+             "This draft will be discarded."
+           end
+
+    text
+  end
+
+  def discard_alert
+    "Are you sure you want to discard this draft?"
+  end
+
+  def discard_path
+    discard_document_path(slug, document.content_id_and_locale)
   end
 
 private
