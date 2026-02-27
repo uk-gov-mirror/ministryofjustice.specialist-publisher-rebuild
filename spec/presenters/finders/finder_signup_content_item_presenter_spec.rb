@@ -1,5 +1,4 @@
-require 'spec_helper'
-require_relative "../../../app/presenters/finders/finder_signup_content_item_presenter"
+require "spec_helper"
 
 RSpec.describe FinderSignupContentItemPresenter do
   describe "#to_json" do
@@ -7,7 +6,7 @@ RSpec.describe FinderSignupContentItemPresenter do
       it "is valid against the #{file} content schemas" do
         read_file = File.read(file)
         payload = JSON.parse(read_file)
-        if payload.has_key?("signup_content_id")
+        if payload.key?("signup_content_id")
           finder_signup_content_presenter = FinderSignupContentItemPresenter.new(payload, File.mtime(file))
           presented_data = finder_signup_content_presenter.to_json
 

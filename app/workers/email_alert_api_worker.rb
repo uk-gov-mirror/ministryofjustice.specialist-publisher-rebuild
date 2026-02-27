@@ -4,6 +4,8 @@ class EmailAlertApiWorker
   include Sidekiq::Worker
 
   def perform(payload)
-    Services.email_alert_api.send_alert(payload)
+    GdsApi.email_alert_api.create_content_change(payload)
+  rescue GdsApi::HTTPConflict
+    logger.info("email-alert-api returned 409 conflict for #{payload}")
   end
 end

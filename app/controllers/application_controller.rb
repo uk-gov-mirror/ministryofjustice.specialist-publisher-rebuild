@@ -1,13 +1,11 @@
 class ApplicationController < ActionController::Base
-  # Prevent CSRF attacks by raising an exception.
-  # For APIs, you may want to use :null_session instead.
-  # protect_from_forgery with: :exception
+  protect_from_forgery with: :exception
 
   include GDS::SSO::ControllerMethods
   include Pundit
 
-  before_filter :require_signin_permission!
-  before_filter :set_authenticated_user_header
+  before_action :authenticate_user!
+  before_action :set_authenticated_user_header
   after_action :verify_authorized
 
   helper_method :current_format
@@ -18,10 +16,9 @@ class ApplicationController < ActionController::Base
 private
 
   def user_not_authorized
-    flash[:danger] = "You aren't permitted to access #{current_format.title.pluralize}. If you feel you've reached this in error, contact your SPOC."
-    redirect_to manuals_path
+    flash[:danger] = "You aren't permitted to access #{current_format.title.pluralize}. Please contact your main GDS contact if you need access."
+    redirect_to root_path
   end
-
 
   def document_type_slug
     params[:document_type_slug]
@@ -36,24 +33,9 @@ private
   end
 
   def document_models
-    [
-      AaibReport,
-      AsylumSupportDecision,
-      CmaCase,
-      CountrysideStewardshipGrant,
-      DfidResearchOutput,
-      DrugSafetyUpdate,
-      EmploymentAppealTribunalDecision,
-      EsiFund,
-      EmploymentTribunalDecision,
-      InternationalDevelopmentFund,
-      MaibReport,
-      MedicalSafetyAlert,
-      RaibReport,
-      TaxTribunalDecision,
-      UtaacDecision,
-      VehicleRecallsAndFaultsAlert,
-    ]
+    @document_models ||= FinderSchema.schema_names.map do |schema_name|
+      schema_name.singularize.camelize.constantize
+    end
   end
 
   def set_authenticated_user_header

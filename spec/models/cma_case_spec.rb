@@ -1,9 +1,13 @@
-require 'spec_helper'
-require 'models/valid_against_schema'
+require "spec_helper"
+require "models/valid_against_schema"
 
 RSpec.describe CmaCase do
-  let(:payload) { FactoryGirl.create(:cma_case) }
+  let(:payload) { FactoryBot.create(:cma_case) }
   include_examples "it saves payloads that are valid against the 'specialist_document' schema"
+
+  it "is not exportable" do
+    expect(described_class).not_to be_exportable
+  end
 
   describe "validations" do
     subject { described_class.from_publishing_api(payload) }

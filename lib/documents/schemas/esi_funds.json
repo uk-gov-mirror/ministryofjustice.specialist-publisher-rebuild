@@ -5,9 +5,9 @@
   "name": "European Structural and Investment Funds (ESIF)",
   "description": "Find and apply to run projects backed by ESIF",
   "beta": true,
-  "summary": "<p>Applies to: England (see guidance for <a rel=\"external\" href=\"http://www.scotland.gov.uk/Topics/Business-Industry/support/17404\">Scotland</a>, <a rel=\"external\" href=\"http://wefo.wales.gov.uk/programmes/post2013/?skip=1&amp;lang=en\">Wales</a> and <a rel=\"external\" href=\"https://www.dfpni.gov.uk/topics/finance/european-funding-2014-2020\">Northern Ireland</a>)</p><p>Apply to run projects backed by the European Structural and Investment Fund (ESIF). ESIF includes money from the European Social Fund (ESF), European Regional Development Fund (ERDF) and European Agricultural Fund for Rural Development (EAFRD).</p>",
+  "summary": "<p>Applies to: England (see guidance for <a rel=\"external\" href=\"http://www.scotland.gov.uk/Topics/Business-Industry/support/17404\">Scotland</a>, <a rel=\"external\" href=\"http://wefo.wales.gov.uk/programmes/post2013/?skip=1&amp;lang=en\">Wales</a> and <a rel=\"external\" href=\"https://www.finance-ni.gov.uk/articles/european-structural-and-investment-fund-programmes-northern-ireland\">Northern Ireland</a>)</p><p>Apply to run projects backed by the European Structural and Investment Fund (ESIF). ESIF includes money from the European Social Fund (ESF), European Regional Development Fund (ERDF) and European Agricultural Fund for Rural Development (EAFRD).</p>",
   "filter": {
-    "document_type": "european_structural_investment_fund"
+    "format": "european_structural_investment_fund"
   },
   "default_order": "-closing_date",
   "signup_content_id": "a4815714-e5d5-4e1b-8543-3ce10139988f",
@@ -19,64 +19,72 @@
     "e8fae147-6232-4163-a3f1-1c15b755a8a4"
   ],
   "subscription_list_title_prefix": {
-    "singular": "European Structural and Investment Fund",
-    "plural": "European Structural and Investment Funds"
+    "singular": "European Structural and Investment Fund with the following location: ",
+    "plural": "European Structural and Investment Funds with the following locations: ",
+    "many": "European Structural and Investment Funds: "
   },
   "email_filter_by": "location",
-  "email_signup_choice": [
+  "email_filter_facets": [
     {
-      "key": "north-east",
-      "radio_button_name": "North East",
-      "topic_name": "north east",
-      "prechecked": false
-    },
-    {
-      "key": "north-west",
-      "radio_button_name": "North West",
-      "topic_name": "north west",
-      "prechecked": false
-    },
-    {
-      "key": "yorkshire-and-humber",
-      "radio_button_name": "Yorkshire and Humber",
-      "topic_name": "yorkshire and humber",
-      "prechecked": false
-    },
-    {
-      "key": "east-midlands",
-      "radio_button_name": "East Midlands",
-      "topic_name": "east midlands",
-      "prechecked": false
-    },
-    {
-      "key": "west-midlands",
-      "radio_button_name": "West Midlands",
-      "topic_name": "west midlands",
-      "prechecked": false
-    },
-    {
-      "key": "east-of-england",
-      "radio_button_name": "East of England",
-      "topic_name": "east of england",
-      "prechecked": false
-    },
-    {
-      "key": "south-east",
-      "radio_button_name": "South East",
-      "topic_name": "south east",
-      "prechecked": false
-    },
-    {
-      "key": "south-west",
-      "radio_button_name": "South West",
-      "topic_name": "south west",
-      "prechecked": false
-    },
-    {
-      "key": "london",
-      "radio_button_name": "London",
-      "topic_name": "london",
-      "prechecked": false
+      "facet_id": "location",
+      "facet_name": "Locations",
+      "required": true,
+      "facet_choices": [
+        {
+          "key": "north-east",
+          "radio_button_name": "North East",
+          "topic_name": "north east",
+          "prechecked": false
+        },
+        {
+          "key": "north-west",
+          "radio_button_name": "North West",
+          "topic_name": "north west",
+          "prechecked": false
+        },
+        {
+          "key": "yorkshire-and-humber",
+          "radio_button_name": "Yorkshire and Humber",
+          "topic_name": "yorkshire and humber",
+          "prechecked": false
+        },
+        {
+          "key": "east-midlands",
+          "radio_button_name": "East Midlands",
+          "topic_name": "east midlands",
+          "prechecked": false
+        },
+        {
+          "key": "west-midlands",
+          "radio_button_name": "West Midlands",
+          "topic_name": "west midlands",
+          "prechecked": false
+        },
+        {
+          "key": "east-of-england",
+          "radio_button_name": "East of England",
+          "topic_name": "east of england",
+          "prechecked": false
+        },
+        {
+          "key": "south-east",
+          "radio_button_name": "South East",
+          "topic_name": "south east",
+          "prechecked": false
+        },
+        {
+          "key": "south-west",
+          "radio_button_name": "South West",
+          "topic_name": "south west",
+          "prechecked": false
+        },
+        {
+          "key": "london",
+          "radio_button_name": "London",
+          "topic_name": "london",
+          "prechecked": false
+        }
+      ]
     }
   ],
   "document_noun": "call",

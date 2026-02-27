@@ -2,21 +2,23 @@
   "content_id": "e9e7fcff-bb0d-4723-af25-9f78d730f6f8",
   "base_path": "/administrative-appeals-tribunal-decisions",
   "format_name": "Administrative appeals tribunal decision",
-  "name": "Administrative appeals tribunal decision",
+  "name": "Administrative appeals tribunal decisions",
   "description": "Find decisions on appeals to the Upper Tribunal (Administrative Appeals Chamber), including social security and child support appeals.",
   "filter": {
-    "document_type": "utaac_decision"
+    "format": "utaac_decision"
   },
   "signup_content_id": "13e59efa-6c0d-48e8-a0b9-092b62cdc912",
   "signup_copy": "You'll get an email each time a decision is updated or a new decision is published.",
   "show_summaries": true,
+  "editing_organisations": [
+    "dcc907d6-433c-42df-9ffb-d9c68be5dc4d"
+  ],
   "organisations": [
-    "dcc907d6-433c-42df-9ffb-d9c68be5dc4d",
     "6f757605-ab8f-4b62-84e4-99f79cf085c2",
     "4c2e325a-2d95-442b-856a-e7fb9f9e3cf8"
   ],
-  "subscription_list_title_prefix": "Upper Tribunal Administrative Appeals Chamber decisions with the following categories:",
-  "pre_production": true,
+  "subscription_list_title_prefix": "Upper Tribunal Administrative Appeals Chamber decisions",
+  "summary": "<p>Find decisions on appeals to the Upper Tribunal (Administrative Appeals Chamber), including social security and child support appeals.</p><p>This includes decisions made from January 2016 onwards. You can find details of <a rel=\"external\" href=\"http://administrativeappeals.decisions.tribunals.gov.uk/Aspx/default.aspx\">decisions made in 2015 or earlier</a> on the Courts and Tribunals Judiciary website.</p>",
   "document_noun": "decision",
   "facets": [
     {
@@ -70,6 +72,10 @@
         {
           "label": "Criminal injuries compensation",
           "value": "criminal-injuries-compensation"
+        },
+        {
+          "label": "Disability discrimination in schools",
+          "value": "disability-discrimination-schools"
         },
         {
           "label": "DLA, AA, MA: general",
@@ -309,12 +315,20 @@
           "value": "benefits-for-children-guardians-allowance"
         },
         {
+          "label": "Benefits for children - tax free childcare",
+          "value": "benefits-for-children-tax-free-childcare"
+        },
+        {
           "label": "Benefits for children - other",
           "value": "benefits-for-children-other"
         },
         {
           "label": "Bereavement and death benefits - bereaved parents allowance",
           "value": "bereavement-and-death-benefits-bereaved-parents-allowance"
+        },
+        {
+          "label": "Bereavement and death benefits - bereavement support payment",
+          "value": "bereavement-and-death-benefits-bereavement-support-payment"
         },
         {
           "label": "Bereavement and death benefits - bereavement payments",
@@ -2029,6 +2043,42 @@
           "value": "tribunal-procedure-and-practice-tribunal-practice"
         },
         {
+          "label": "Universal Credit - Sanctions",
+          "value": "universal-credit-sanctions"
+        },
+        {
+          "label":  "Universal Credit - Standard Allowance",
+          "value":  "universal-credit-standard-allowance"
+        },
+        {
+          "label":  "Universal Credit - Limited Capability for work",
+          "value":  "universal-credit-limited-capability-for-work"
+        },
+         {
+          "label":  "Universal Credit - Child Element",
+          "value":  "universal-credit-child-element"
+        },
+         {
+          "label":  "Universal Credit - Child Element Disabled Child Addition",
+          "value":  "universal-credit-child-element-disabled-child-addition"
+        },
+         {
+          "label":  "Universal Credit - Child Care",
+          "value":  "universal-credit-child-care"
+        },
+         {
+          "label":  "Universal Credit - Care",
+          "value":  "universal-credit-care"
+        },
+         {
+          "label":  "Universal Credit - Housing",
+          "value":  "universal-credit-housing"
+        },
+        {
+          "label":  "Universal Credit - Other",
+          "value":  "universal-credit-other"
+        },
+        {
           "label": "War pensions and armed forces compensation - Armed Forces Compensation Scheme",
           "value": "war-pensions-and-armed-forces-compensation-armed-forces-compensation-scheme"
         },
@@ -2070,6 +2120,10 @@
       "filterable": true,
       "allowed_values": [
         {
+          "label": "Agnew, C",
+          "value": "agnew-c"
+        },
+        {
           "label": "Angus, R",
           "value": "angus-r"
         },
@@ -2090,12 +2144,20 @@
           "value": "brown-m"
         },
         {
-          "label": "Bruner, K",
-          "value": "bruner-k"
+          "label": "Brunner, K",
+          "value": "brunner-k"
+        },
+        {
+          "label": "Burns, D",
+          "value": "burns-d"
         },
         {
           "label": "Burton, F",
           "value": "burton-f"
+        },
+        {
+          "label": "Caldwell, M",
+          "value": "Caldwell-m"
         },
         {
           "label": "Carlisle, H",
@@ -2110,8 +2172,20 @@
           "value": "charles-w"
         },
         {
+          "label": "Church, TH",
+          "value": "church-th"
+        },
+        {
+          "label": "Clough, J",
+          "value": "clough-j"
+        },
+        {
           "label": "Cole, G",
           "value": "cole-g"
+        },
+        {
+          "label": "Dunlop, L",
+          "value": "dunlop-l"
         },
         {
           "label": "Farbey, J",
@@ -2146,8 +2220,16 @@
           "value": "grey-e"
         },
         {
+          "label": "Gullick, M",
+          "value": "gullick-m"
+        },
+        {
           "label": "Hallett, V",
           "value": "hallett-v"
+        },
+        {
+          "label": "Hansen, W",
+          "value": "hansen-w"
         },
         {
           "label": "Harris, M",
@@ -2198,6 +2280,10 @@
           "value": "johnson-m"
         },
         {
+          "label": "Jones, R",
+          "value": "jones-r"
+        },
+        {
           "label": "Jupp, E",
           "value": "jupp-e"
         },
@@ -2216,6 +2302,10 @@
         {
           "label": "Lloyd-Davies, A",
           "value": "lloyd-davies-a"
+        },
+        {
+          "label": "Lunney, J",
+          "value": "lunney-j"
         },
         {
           "label": "Machin, K",
@@ -2266,6 +2356,10 @@
           "value": "mullan-k"
         },
         {
+          "label": "Najib, S",
+          "value": "najib-s"
+        },
+        {
           "label": "Ovey, E",
           "value": "ovey-e"
         },
@@ -2290,6 +2384,10 @@
           "value": "perez-r"
         },
         {
+          "label": "Poole, AI",
+          "value": "poole-ai"
+        },
+        {
           "label": "Powell, J",
           "value": "powell-j"
         },
@@ -2302,12 +2400,20 @@
           "value": "ramsay-a"
         },
         {
+          "label": "Ramshaw, P",
+          "value": "ramshaw-p"
+        },
+        {
           "label": "Reith, D",
           "value": "reith-d"
         },
         {
           "label": "Rice, D",
           "value": "rice-d"
+        },
+        {
+          "label": "Robinson, H",
+          "value": "robinson-h"
         },
         {
           "label": "Rowland, M",
@@ -2322,8 +2428,20 @@
           "value": "sanders-r"
         },
         {
+          "label": "Scolding, F",
+          "value": "scolding-f"
+        },
+        {
+          "label": "Sims, A",
+          "value": "sims-a"
+        },
+        {
           "label": "Skinner, J",
           "value": "skinner-j"
+        },
+        {
+          "label": "Smith, R",
+          "value": "smith-r"
         },
         {
           "label": "Sutherland Williams, M",
