@@ -1,23 +1,23 @@
-require 'spec_helper'
+require "spec_helper"
 
 RSpec.feature "Creating a Employment appeal tribunal decision", type: :feature do
-  let(:fields)            { [:base_path, :content_id, :public_updated_at, :title, :publication_state] }
-  let(:research_output)   { FactoryGirl.create(:employment_appeal_tribunal_decision) }
-  let(:content_id)        { research_output['content_id'] }
-  let(:public_updated_at) { research_output['public_updated_at'] }
+  let(:fields)            { %i[base_path content_id public_updated_at title publication_state] }
+  let(:research_output)   { FactoryBot.create(:employment_appeal_tribunal_decision) }
+  let(:content_id)        { research_output["content_id"] }
+  let(:public_updated_at) { research_output["public_updated_at"] }
 
-  context 'in development' do
+  context "in development" do
     before do
       allow(Rails.env).to receive(:development?).and_return(true)
       log_in_as_editor(:gds_editor)
 
-      Timecop.freeze(Time.parse(public_updated_at))
+      Timecop.freeze(Time.zone.parse(public_updated_at))
       allow(SecureRandom).to receive(:uuid).and_return(content_id)
 
       stub_any_publishing_api_put_content
       stub_any_publishing_api_patch_links
 
-      publishing_api_has_item(research_output)
+      stub_publishing_api_has_item(research_output)
     end
 
     scenario "with valid data" do
@@ -32,13 +32,14 @@ RSpec.feature "Creating a Employment appeal tribunal decision", type: :feature d
       fill_in "Body", with: ("## Header" + ("\n\nThis is the long body of an example Employment appeal tribunal decision" * 10))
       select "Age Discrimination", from: "Tribunal decision categories"
       select "Contract of Employment - Apprenticeship", from: "Tribunal decision sub categories"
-      fill_in "Tribunal decision decision date", with: "2013-01-01"
+      fill_in "[employment_appeal_tribunal_decision]tribunal_decision_decision_date(1i)", with: "2013"
+      fill_in "[employment_appeal_tribunal_decision]tribunal_decision_decision_date(2i)", with: "01"
+      fill_in "[employment_appeal_tribunal_decision]tribunal_decision_decision_date(3i)", with: "01"
       select "Not landmark", from: "Tribunal decision landmark"
       fill_in "Hidden indexable content", with: "hidden text goes here"
 
-
-      expect(page).to have_css('div.govspeak-help')
-      expect(page).to have_content('To add an attachment, please save the draft first.')
+      expect(page).to have_css("div.govspeak-help")
+      expect(page).to have_content("To add an attachment, please save the draft first.")
 
       click_button "Save as draft"
 
@@ -62,7 +63,7 @@ RSpec.feature "Creating a Employment appeal tribunal decision", type: :feature d
       expect(page).to have_content("Summary can't be blank")
       expect(page).to have_content("Body can't be blank")
       expect(page).to have_content("Tribunal decision categories can't be blank")
-      expect(page).to have_content("Tribunal decision sub categories can't be blank")
+      expect(page).not_to have_content("Tribunal decision sub categories can't be blank")
       expect(page).to have_content("Tribunal decision decision date")
 
       expect(page).to_not have_content("Hidden indexable content can't be blank")
@@ -85,11 +86,11 @@ RSpec.feature "Creating a Employment appeal tribunal decision", type: :feature d
     end
   end
 
-  context 'in production' do
+  context "in production" do
     before do
       allow(Rails.env).to receive(:development?).and_return(false)
       stub_any_publishing_api_call
-      publishing_api_has_item(research_output)
+      stub_publishing_api_has_item(research_output)
     end
 
     context "when logged in as an editor" do

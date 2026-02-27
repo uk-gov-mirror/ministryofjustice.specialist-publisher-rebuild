@@ -4,7 +4,7 @@ RSpec.describe EmailAlertApiWorker do
   include GdsApi::TestHelpers::EmailAlertApi
 
   before do
-    email_alert_api_accepts_alert
+    stub_email_alert_api_accepts_content_change
   end
 
   around do |example|
@@ -18,6 +18,16 @@ RSpec.describe EmailAlertApiWorker do
     described_class.drain
     expect(described_class.jobs.size).to eq(0)
 
-    assert_email_alert_sent("some" => "payload")
+    assert_email_alert_api_content_change_created("some" => "payload")
+  end
+
+  it "doesn't retry 409s" do
+    stub_any_email_alert_api_call.and_raise(GdsApi::HTTPConflict.new(409))
+
+    expect(Sidekiq.logger).to receive(:info).with(/email-alert-api returned 409 conflict/)
+
+    expect {
+      described_class.new.perform(payload: {})
+    }.not_to raise_error
   end
 end

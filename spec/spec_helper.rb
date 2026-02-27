@@ -5,7 +5,7 @@ SimpleCov.start
 
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 ENV["RAILS_ENV"] ||= "test"
-require File.expand_path("../../config/environment", __FILE__)
+require File.expand_path("../config/environment", __dir__)
 
 require "rspec/rails"
 require "fixtures/factories"
@@ -15,9 +15,10 @@ WebMock.disable_net_connect!(allow_localhost: true)
 
 # Requires supporting ruby files with custom matchers and macros, etc,
 # in spec/support/ and its subdirectories.
-Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
+Dir[Rails.root.join("spec/support/**/*.rb")].sort.each { |f| require f }
 Dir[Rails.root.join("features/support/**/*_helpers.rb")]
   .reject { |f| f =~ %r{/api_helpers.rb$} }
+  .sort
   .each { |f| require f }
 
 # Quiet down now Mongo
@@ -27,17 +28,13 @@ require "database_cleaner"
 DatabaseCleaner[:mongoid].strategy = :truncation
 DatabaseCleaner.clean
 
-require 'capybara/rspec'
-require 'capybara/webkit/matchers'
-Capybara.javascript_driver = :webkit
+require "services"
+require "gds_api/test_helpers/publishing_api"
+require "gds_api/test_helpers/email_alert_api"
 
-require 'gds_api/test_helpers/publishing_api_v2'
-require 'gds_api/test_helpers/rummager'
-require 'gds_api/test_helpers/email_alert_api'
+require "pundit/rspec"
 
-require 'pundit/rspec'
-
-require 'govuk_sidekiq/testing'
+require "govuk_sidekiq/testing"
 Sidekiq::Testing.inline!
 
 RSpec.configure do |config|
@@ -61,9 +58,7 @@ RSpec.configure do |config|
   end
 
   config.include Capybara::DSL, type: :feature
-  config.include(Capybara::Webkit::RspecMatchers, type: :feature)
-  config.include(GdsApi::TestHelpers::PublishingApiV2)
-  config.include(GdsApi::TestHelpers::Rummager)
+  config.include(GdsApi::TestHelpers::PublishingApi)
   config.include(GdsApi::TestHelpers::EmailAlertApi)
 
   # Run specs in random order to surface order dependencies. If you find an

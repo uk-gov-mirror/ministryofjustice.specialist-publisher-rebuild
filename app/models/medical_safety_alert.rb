@@ -2,16 +2,20 @@ class MedicalSafetyAlert < Document
   validates :alert_type, presence: true
   validates :issued_date, presence: true, date: true
 
-  FORMAT_SPECIFIC_FIELDS = %i(
+  FORMAT_SPECIFIC_FIELDS = %i[
     alert_type
     issued_date
     medical_specialism
-  )
+  ].freeze
 
   attr_accessor(*FORMAT_SPECIFIC_FIELDS)
 
   def initialize(params = {})
     super(params, FORMAT_SPECIFIC_FIELDS)
+  end
+
+  def taxons
+    [ALERTS_AND_RECALLS_TAXON_ID]
   end
 
   def self.title
@@ -20,5 +24,13 @@ class MedicalSafetyAlert < Document
 
   def urgent
     true
+  end
+
+  def email_footnote
+    "If you have any questions about the medical content in this email, contact MHRA on info@mhra.gov.uk"
+  end
+
+  def primary_publishing_organisation
+    "240f72bd-9a4d-4f39-94d9-77235cadde8e"
   end
 end

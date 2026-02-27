@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 RSpec.describe Document do
   class MyDocumentType < Document
@@ -6,10 +6,14 @@ RSpec.describe Document do
       "My Document Type"
     end
 
+    def primary_publishing_organisation
+      "a-primary-org-id"
+    end
+
     attr_accessor :field1, :field2, :field3
 
     def initialize(params = {})
-      super(params, [:field1, :field2, :field3])
+      super(params, %i[field1 field2 field3])
     end
   end
 
@@ -21,6 +25,18 @@ RSpec.describe Document do
     expect(MyDocumentType.document_type).to eq("my_document_type")
   end
 
+  describe "parsing date params" do
+    it "sets a date string from rails date select style params" do
+      doc = MyDocumentType.new("field1(1i)": "2016", "field1(2i)": "09", "field1(3i)": "07")
+      expect(doc.field1).to eq("2016-09-07")
+    end
+
+    it "formats the date consistently" do
+      doc = MyDocumentType.new("field1(1i)": "2016", "field1(2i)": "9", "field1(3i)": "07")
+      expect(doc.field1).to eq("2016-09-07")
+    end
+  end
+
   describe ".all" do
     it "makes a request to the publishing api with the correct params" do
       publishing_api = double(:publishing_api)
@@ -30,21 +46,23 @@ RSpec.describe Document do
         .with(
           publishing_app: "specialist-publisher",
           document_type: "my_document_type",
-          fields: [
-            :base_path,
-            :content_id,
-            :last_edited_at,
-            :title,
-            :publication_state,
-            :state_history,
+          fields: %i[
+            base_path
+            content_id
+            locale
+            last_edited_at
+            title
+            publication_state
+            state_history
           ],
           page: 1,
           per_page: 20,
+          locale: "all",
           order: "-last_edited_at",
           q: "foo",
         )
 
-      MyDocumentType.all(1, 20, q: "foo")
+      MyDocumentType.all(1, 20, query: "foo")
     end
   end
 
@@ -64,18 +82,45 @@ RSpec.describe Document do
       expect(subject.save).to be true
       assert_publishing_api_put_content(subject.content_id, request_json_includes(update_type: "major"))
     end
+
+    describe "#summary" do
+      before { subject.summary = nil }
+
+      context "when document_type is not 'protected_food_drink_name'" do
+        it "requires a summary" do
+          expect(subject).to_not be_valid
+          expect(subject.errors.messages).to eq(summary: ["can't be blank"])
+        end
+      end
+
+      context "when document_type is 'protected_food_drink_name'" do
+        before { expect(subject).to receive(:document_type).and_return("protected_food_drink_name") }
+
+        it "does not require a summary" do
+          expect(subject).to be_valid
+          expect(subject.errors.messages).to be_blank
+        end
+      end
+    end
   end
 
-  let(:finder_schema) {
+  before(:all) do
+    # this value is cached in the Document as a class variable, so we need it
+    # to not change between tests
+    @finder_content_id = SecureRandom.uuid
+  end
+
+  let(:finder_schema) do
     {
       base_path: "/my-document-types",
       filter: {
-        document_type: "my_document_type",
-      }
+        format: "my_format",
+      },
+      content_id: @finder_content_id,
     }.deep_stringify_keys
-  }
+  end
 
-  let(:payload_attributes) {
+  let(:payload_attributes) do
     {
       document_type: "my_document_type",
       title: "Example document",
@@ -87,41 +132,40 @@ RSpec.describe Document do
             content_type: "text/govspeak",
             content: "This is the body of an example document",
           },
-          {
-            content_type: "text/html",
-            content: "<p>This is the body of an example document</p>\n",
-          },
         ],
         metadata: {
           field1: "2015-12-01",
           field2: "open",
-          field3: %w(x y z),
-        }
-      }
+          field3: %w[x y z],
+        },
+      },
+      links: {
+        finder: [@finder_content_id],
+      },
     }
-  }
-  let(:payload) { FactoryGirl.create(:document, payload_attributes) }
+  end
+  let(:payload) { FactoryBot.create(:document, payload_attributes) }
   let(:document) { MyDocumentType.from_publishing_api(payload) }
 
   before do
-    allow_any_instance_of(FinderSchema).to receive(:load_schema_for).with("my_document_types").
-      and_return(finder_schema)
+    allow_any_instance_of(FinderSchema).to receive(:load_schema_for).with("my_document_types")
+      .and_return(finder_schema)
   end
 
   describe ".from_publishing_api" do
     context "for a published document" do
-      let(:payload) { FactoryGirl.create(:document, :published, payload_attributes) }
+      let(:payload) { FactoryBot.create(:document, :published, payload_attributes) }
 
       it "sets the top-level attributes on a document" do
-        expect(document.base_path).to eq(payload['base_path'])
-        expect(document.content_id).to eq(payload['content_id'])
-        expect(document.title).to eq(payload['title'])
-        expect(document.summary).to eq(payload['description'])
-        expect(document.publication_state).to eq(payload['publication_state'])
-        expect(document.public_updated_at).to eq(payload['public_updated_at'])
-        expect(document.first_published_at).to eq(payload['first_published_at'])
+        expect(document.base_path).to eq(payload["base_path"])
+        expect(document.content_id).to eq(payload["content_id"])
+        expect(document.title).to eq(payload["title"])
+        expect(document.summary).to eq(payload["description"])
+        expect(document.publication_state).to eq(payload["publication_state"])
+        expect(document.public_updated_at).to eq(payload["public_updated_at"])
+        expect(document.first_published_at).to eq(payload["first_published_at"])
         expect(document.update_type).to eq(nil)
-        expect(document.state_history).to eq(payload['state_history'])
+        expect(document.state_history).to eq(payload["state_history"])
       end
 
       context "when bulk published is true" do
@@ -129,9 +173,9 @@ RSpec.describe Document do
           {
             details: {
               metadata: {
-                bulk_published: true
-              }
-            }
+                bulk_published: true,
+              },
+            },
           }
         end
 
@@ -142,8 +186,8 @@ RSpec.describe Document do
         let(:payload_attributes) do
           {
             details: {
-              metadata: {}
-            }
+              metadata: {},
+            },
           }
         end
 
@@ -157,8 +201,8 @@ RSpec.describe Document do
               body: [
                 { content_type: "text/govspeak", content: "# hello" },
                 { content_type: "text/html", content: "<h1>hello</h1>" },
-              ]
-            }
+              ],
+            },
           }
         end
 
@@ -172,7 +216,7 @@ RSpec.describe Document do
           {
             details: {
               body: "This is just a string.",
-            }
+            },
           }
         end
 
@@ -186,46 +230,24 @@ RSpec.describe Document do
       end
 
       it "sets format specific fields for the document subclass" do
-        expect(document.format_specific_fields).to eq([:field1, :field2, :field3])
+        expect(document.format_specific_fields).to eq(%i[field1 field2 field3])
 
         expect(document.field1).to eq("2015-12-01")
         expect(document.field2).to eq("open")
-        expect(document.field3).to eq(%w(x y z))
+        expect(document.field3).to eq(%w[x y z])
       end
     end
 
     context "when the document is redrafted" do
       let(:payload) do
-        FactoryGirl.create(
+        FactoryBot.create(
           :document,
           :redrafted,
           payload_attributes.merge(update_type: "minor"),
         )
       end
       it "sets the update type" do
-        expect(document.update_type).to eq(payload['update_type'])
-      end
-
-      context "when there is more than one item in the change history" do
-        let(:payload_attributes) do
-          {
-            details: {
-              change_history: [
-                { note: "First published", public_timestamp: "2016-01-01" },
-                { note: "Second note", public_timestamp: "2016-01-02" },
-              ]
-            }
-          }
-        end
-
-        it "sets the change note to the second item in the change history" do
-          document.update_type = "major"
-          expect(document.change_note).to eq("Second note")
-        end
-      end
-
-      context "when there is just one item in the change history" do
-        specify { expect(document.change_note).to be_nil }
+        expect(document.update_type).to eq(payload["update_type"])
       end
     end
 
@@ -240,14 +262,13 @@ RSpec.describe Document do
   end
 
   context "successful #publish" do
-    let(:payload) { FactoryGirl.create(:document, :published, payload_attributes) }
+    let(:payload) { FactoryBot.create(:document, :published, payload_attributes) }
     before do
       stub_any_publishing_api_put_content
       stub_any_publishing_api_patch_links
       stub_publishing_api_publish(document.content_id, {})
-      publishing_api_has_item(payload)
-      stub_any_rummager_post_with_queueing_enabled
-      @email_alert_api = email_alert_api_accepts_alert
+      stub_publishing_api_has_item(payload)
+      @email_alert_api = stub_email_alert_api_accepts_content_change
     end
 
     it "sends a payload to Publishing API" do
@@ -256,48 +277,35 @@ RSpec.describe Document do
       assert_publishing_api_publish(document.content_id)
     end
 
-    it "sends a payload to Rummager" do
-      expect(document.publish).to eq(true)
-
-      assert_rummager_posted_item(
-        "title" => "Example document",
-        "description" => "This is a summary",
-        "indexable_content" => "This is the body of an example document",
-        "link" => "/my-document-types/example-document",
-        "public_timestamp" => "2015-11-16T11:53:30+00:00",
-        "first_published_at" => "2015-11-15T00:00:00+00:00",
-        "field1" => "2015-12-01",
-        "field2" => "open",
-      )
-    end
-
     it "alerts the email API for major updates" do
       document.update_type = "major"
 
       expect(document.publish).to eq(true)
 
-      assert_email_alert_sent(
+      assert_email_alert_api_content_change_created(
         "tags" => {
-          "format" => "my_document_type",
+          "format" => "my_format",
           "field1" => "2015-12-01",
           "field2" => "open",
-          "field3" => %w(x y z),
+          "field3" => %w[x y z],
         },
-        "document_type" => "my_document_type"
+        "document_type" => "my_document_type",
       )
     end
 
     context "document is redrafted with a minor edit" do
-      let(:minor_change_document) {
+      let(:minor_change_document) do
         MyDocumentType.from_publishing_api(
-          FactoryGirl.create(:document,
+          FactoryBot.create(
+            :document,
             payload_attributes.merge(
-              publication_state: 'published',
-              update_type: 'minor',
-              content_id: document.content_id
-            ))
+              publication_state: "published",
+              update_type: "minor",
+              content_id: document.content_id,
+            ),
+          ),
         )
-      }
+      end
 
       it "doesn't alert the email API for minor updates" do
         expect(minor_change_document.publish).to eq(true)
@@ -307,64 +315,59 @@ RSpec.describe Document do
     end
 
     context "document has never been published" do
-      let(:unpublished_document) {
+      let(:unpublished_document) do
         MyDocumentType.from_publishing_api(
-          FactoryGirl.create(:document,
+          FactoryBot.create(
+            :document,
             payload_attributes.merge(
               first_published_at: nil,
-              publication_state: 'draft',
-              change_history: [],
-              content_id: document.content_id
-            ))
-        )
-      }
-
-      it 'sends first_published_at to Rummager' do
-        unpublished_document.publish
-        assert_rummager_posted_item(
-          "title" => "Example document",
-          "description" => "This is a summary",
-          "indexable_content" => "This is the body of an example document",
-          "link" => "/my-document-types/example-document",
-          "public_timestamp" => "2015-11-16T11:53:30+00:00",
-          "first_published_at" => "2015-11-15T00:00:00+00:00",
-          "field1" => "2015-12-01",
-          "field2" => "open",
+              publication_state: "draft",
+              content_id: document.content_id,
+            ),
+          ),
         )
       end
 
       it 'saves a "First published." change note before asking the api to publish' do
-        Timecop.freeze(Time.parse("2015-12-18 10:12:26 UTC")) do
+        Timecop.freeze(Time.zone.parse("2015-12-18 10:12:26 UTC")) do
           unpublished_document.publish
 
-          expected_change_history = [
-            {
-              "public_timestamp" => Time.current.iso8601,
-              "note" => "First published.",
-            },
-          ]
-
           changed_json = {
-            "update_type" => 'major',
-            "details" => payload["details"].merge("change_history" => expected_change_history),
+            update_type: "major",
+            change_note: "First published.",
           }
 
           assert_publishing_api_put_content(unpublished_document.content_id, request_json_includes(changed_json))
         end
       end
+
+      context "when the document has previously been unpublished" do
+        before do
+          document.state_history = { "1" => "unpublished", "2" => "draft" }
+        end
+
+        it "asynchronously restores attachments" do
+          expect(AttachmentRestoreWorker).to receive(:perform_async)
+            .with(document.content_id, document.locale)
+
+          document.publish
+        end
+      end
     end
 
-    shared_examples_for 'publishing changes to a document that has previously been published' do
-      let(:published_document) {
+    shared_examples_for "publishing changes to a document that has previously been published" do
+      let(:published_document) do
         MyDocumentType.from_publishing_api(
-          FactoryGirl.create(:document,
-            :published,
+          FactoryBot.create(
+            :document,
+            :redrafted,
             payload_attributes.merge(
               publication_state: publication_state,
-              content_id: document.content_id
-            ))
+              content_id: document.content_id,
+            ),
+          ),
         )
-      }
+      end
 
       it 'does not add a "First published" change note before asking the api to publish' do
         published_document.publish
@@ -374,73 +377,72 @@ RSpec.describe Document do
     end
 
     context "when document is in live state" do
-      let(:publication_state) { 'published' }
-      it_behaves_like 'publishing changes to a document that has previously been published'
+      let(:publication_state) { "published" }
+      it_behaves_like "publishing changes to a document that has previously been published"
     end
 
-    context 'when document is in redrafted state' do
-      let(:publication_state) { 'draft' }
-      it_behaves_like 'publishing changes to a document that has previously been published'
+    context "when document is in redrafted state" do
+      let(:publication_state) { "draft" }
+      it_behaves_like "publishing changes to a document that has previously been published"
     end
 
-    context 'when document is in unpublished state' do
-      let(:publication_state) { 'unpublished' }
-      it_behaves_like 'publishing changes to a document that has previously been published'
+    context "when document is in unpublished state" do
+      let(:publication_state) { "unpublished" }
+      it_behaves_like "publishing changes to a document that has previously been published"
     end
 
-    context 'when document is in superseded state' do
-      let(:publication_state) { 'superseded' }
-      it_behaves_like 'publishing changes to a document that has previously been published'
+    context "when document is in superseded state" do
+      let(:publication_state) { "superseded" }
+      it_behaves_like "publishing changes to a document that has previously been published"
     end
   end
 
   context "unsuccessful #publish" do
-    let(:payload) { FactoryGirl.create(:document, :published, payload_attributes) }
+    let(:payload) { FactoryBot.create(:document, :published, payload_attributes) }
 
-    it "notifies Airbrake and returns false if publishing-api does not return status 200" do
-      expect(Airbrake).to receive(:notify)
+    it "notifies GovukError and returns false if publishing-api does not return status 200" do
+      expect(GovukError).to receive(:notify)
       stub_any_publishing_api_put_content
       stub_any_publishing_api_patch_links
       stub_publishing_api_publish(document.content_id, {}, status: 503)
-      stub_any_rummager_post_with_queueing_enabled
-      expect(document.publish).to eq(false)
-    end
-
-    it "notifies Airbrake and returns false if rummager does not return status 200" do
-      expect(Airbrake).to receive(:notify)
-      stub_any_publishing_api_put_content
-      stub_any_publishing_api_patch_links
-      stub_publishing_api_publish(document.content_id, {})
-      publishing_api_has_item(payload)
-      stub_request(:post, %r{#{Plek.new.find('rummager')}/documents}).to_return(status: 503)
       expect(document.publish).to eq(false)
     end
   end
 
   describe "#unpublish" do
     before do
-      publishing_api_has_item(payload)
-      document = MyDocumentType.find(payload["content_id"])
-      stub_publishing_api_unpublish(document.content_id, body: { type: 'gone' })
-      stub_any_rummager_delete_content
+      stub_publishing_api_has_item(payload)
+      document = MyDocumentType.find(payload["content_id"], payload["locale"])
+      stub_publishing_api_unpublish(document.content_id, body: { locale: document.locale, type: "gone" })
     end
 
     it "sends correct payload to publishing api" do
       expect(document.unpublish).to eq(true)
 
-      assert_publishing_api_unpublish(document.content_id)
+      assert_publishing_api_unpublish(document.content_id, type: "gone", locale: document.locale)
     end
 
-    it "sends a delete request to Rummager" do
-      expect(document.unpublish).to eq(true)
+    it "deletes document attachments" do
+      expect(AttachmentDeleteWorker).to receive(:perform_async).with(payload["content_id"], payload["locale"])
 
-      assert_rummager_deleted_content document.base_path
+      document.unpublish
+    end
+
+    context "with an alternative path" do
+      it "sends correct payload to publishing api" do
+        stub_publishing_api_has_lookups("/foo" => SecureRandom.uuid)
+        stub_publishing_api_unpublish(document.content_id, body: { type: "redirect", locale: document.locale, alternative_path: "/foo" })
+
+        expect(document.unpublish("/foo")).to eq(true)
+
+        assert_publishing_api_unpublish(document.content_id, type: "redirect", locale: document.locale, alternative_path: "/foo")
+      end
     end
 
     context "unsuccessful #unpublish" do
-      it "notifies Airbrake and returns false if publishing-api does not return status 200" do
-        expect(Airbrake).to receive(:notify)
-        stub_publishing_api_unpublish(document.content_id, { body: { type: 'gone' } }, status: 409)
+      it "notifies GovukError and returns false if publishing-api does not return status 200" do
+        expect(GovukError).to receive(:notify)
+        stub_publishing_api_unpublish(document.content_id, { body: { type: "gone", locale: document.locale } }, status: 409)
         expect(document.unpublish).to eq(false)
       end
     end
@@ -468,15 +470,15 @@ RSpec.describe Document do
 
   describe "#save" do
     before do
-      publishing_api_has_item(payload)
-      Timecop.freeze(Time.parse("2015-12-18 10:12:26 UTC"))
+      stub_publishing_api_has_item(payload)
+      Timecop.freeze(Time.zone.parse("2015-12-18 10:12:26 UTC"))
     end
 
     it "saves document" do
       stub_any_publishing_api_put_content
       stub_any_publishing_api_patch_links
 
-      c = MyDocumentType.find(payload["content_id"])
+      c = MyDocumentType.find(payload["content_id"], payload["locale"])
       expect(c.save).to eq(true)
 
       expected_payload = write_payload(payload.deep_stringify_keys)
@@ -494,7 +496,7 @@ RSpec.describe Document do
     end
 
     it "returns false if the Publishing API calls fail" do
-      publishing_api_isnt_available
+      stub_publishing_api_isnt_available
       expect(document.save).to be_falsey
     end
 
@@ -502,7 +504,7 @@ RSpec.describe Document do
       subject { Document.from_publishing_api(payload) }
 
       context "when the document is a draft" do
-        let(:payload) { FactoryGirl.create(:document) }
+        let(:payload) { FactoryBot.create(:document) }
 
         it "does not require an update_type" do
           subject.update_type = ""
@@ -516,9 +518,9 @@ RSpec.describe Document do
       end
 
       context "when the document is published" do
-        let(:payload) {
-          FactoryGirl.create(:document, :published, state_history: { "1" => "published" })
-        }
+        let(:payload) do
+          FactoryBot.create(:document, :published, state_history: { "1" => "published" })
+        end
 
         it "requires an update_type" do
           subject.update_type = ""
@@ -536,9 +538,9 @@ RSpec.describe Document do
       end
 
       context "when the document is unpublished" do
-        let(:payload) {
-          FactoryGirl.create(:document, :unpublished, state_history: { "1" => "published", "2" => "unpublished" })
-        }
+        let(:payload) do
+          FactoryBot.create(:document, :unpublished, state_history: { "1" => "published", "2" => "unpublished" })
+        end
 
         it "requires an update_type" do
           subject.update_type = ""
@@ -579,11 +581,11 @@ RSpec.describe Document do
 
   describe ".find" do
     before do
-      publishing_api_has_item(payload)
+      stub_publishing_api_has_item(payload)
     end
 
     it "returns a document" do
-      found_document = MyDocumentType.find(document.content_id)
+      found_document = MyDocumentType.find(document.content_id, document.locale)
 
       expect(found_document.base_path).to eq(payload["base_path"])
       expect(found_document.title).to     eq(payload["title"])
@@ -594,7 +596,7 @@ RSpec.describe Document do
 
     describe "when called on the Document superclass" do
       it "returns an instance of the subclass with matching document_type" do
-        found_document = Document.find(document.content_id)
+        found_document = Document.find(document.content_id, document.locale)
         expect(found_document).to be_a(MyDocumentType)
       end
     end
@@ -602,7 +604,7 @@ RSpec.describe Document do
     describe "when called on a class that mismatches the document_type" do
       it "raises a helpful error" do
         expect {
-          CmaCase.find(document.content_id)
+          CmaCase.find(document.content_id, document.locale)
         }.to raise_error(/wrong type/)
       end
     end
@@ -644,9 +646,28 @@ RSpec.describe Document do
         expect(subject.upload_attachment(attachment)).to eq(false)
       end
     end
+
+    describe "#delete_attachment" do
+      before do
+        subject.attachments = [attachment]
+      end
+
+      it "deletes its attachment on a successful API call" do
+        expect(subject.attachments).to receive(:remove).and_return(true)
+        expect(subject).to receive(:save)
+        subject.delete_attachment(attachment)
+        expect subject.attachments.count == 0
+      end
+
+      it "returns false and preserves its attachment on a failed call" do
+        expect(subject.attachments).to receive(:remove).and_return(false)
+        expect(subject.delete_attachment(attachment)).to eq(false)
+        expect subject.attachments.count == 1
+      end
+    end
   end
 
-  describe "#set_temporary_update_type!"do
+  describe "#set_temporary_update_type!" do
     before { subject.publication_state = "published" }
 
     context "when the document has an update_type" do
@@ -674,7 +695,7 @@ RSpec.describe Document do
     end
   end
 
-  context "change_history" do
+  context "change_note" do
     subject { MyDocumentType.new }
 
     it "sets the change note when it is a major update" do
@@ -699,17 +720,80 @@ RSpec.describe Document do
     end
   end
 
-  context '#first_draft?' do
+  context "#first_draft?" do
     subject { MyDocumentType.new }
-
-    it "is true if there is no first_published_at" do
-      subject.first_published_at = nil
+    it "is true if the state_history is less than 2" do
+      subject.state_history = nil
       expect(subject.first_draft?).to eq(true)
     end
 
-    it "is false if there is a first_published_at" do
-      subject.first_published_at = "2015-11-15T00:00:00+00:00"
+    it "is true if the state_history indicates it has not been published" do
+      subject.state_history = { "1" => "draft" }
+      expect(subject.first_draft?).to eq(true)
+    end
+
+    it "is false if the state_history indicates it has been published" do
+      subject.state_history = { "3" => "draft", "2" => "published", "1" => "superseded" }
       expect(subject.first_draft?).to eq(false)
+    end
+
+    it "is true if there is a first_published_at and a state history indicating it has not been published" do
+      subject.state_history = { "1" => "draft" }
+      subject.first_published_at = "2019-02-21T00:00:00+00:00"
+      expect(subject.first_draft?).to eq(true)
+    end
+  end
+
+  context "saving a draft where another draft has the same base_path" do
+    before do
+      stub_any_publishing_api_put_content
+        .to_raise(GdsApi::HTTPErrorResponse.new(422, "base path=/foo/bar conflicts with content_id=123"))
+    end
+
+    subject do
+      MyDocumentType.new(
+        title: "A document",
+        summary: "An introduction",
+        body: "Some text",
+      )
+    end
+
+    it "cannot be saved" do
+      expect(subject.save).to be false
+    end
+
+    it "populates an error on the document" do
+      subject.save
+      expect(subject.errors[:base]).to eq(["Warning: This document's URL is already used on GOV.UK. You can't publish it until you change the title."])
+    end
+  end
+
+  context "a draft where a published item has the same base_path" do
+    let(:content_id) { SecureRandom.uuid }
+    let(:locale) { "en" }
+    let(:published) { FactoryBot.create(:document, document_type: "my_document_type", content_id: content_id) }
+
+    before do
+      stub_request(:get, %r{/v2/content/#{content_id}})
+        .to_return(status: 200,
+                   body: published.merge(warnings: { "content_item_blocking_publish" => "foo" }).to_json)
+    end
+
+    subject { described_class.find(content_id, locale) }
+
+    it "cannot be published" do
+      expect(subject.publish).to be false
+    end
+
+    it "populates warnings on the document" do
+      expect(subject.warnings).to eq("content_item_blocking_publish" => "foo")
+    end
+
+    it "can be saved" do
+      stub_any_publishing_api_put_content
+      stub_any_publishing_api_patch_links
+      subject.update_type = "minor"
+      expect(subject.save).to be true
     end
   end
 end

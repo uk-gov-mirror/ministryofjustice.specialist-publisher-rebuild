@@ -1,20 +1,21 @@
-require 'spec_helper'
+require "spec_helper"
 
 RSpec.feature "Viewing a specific case", type: :feature do
   let(:cma_cases) { [] }
   before do
     log_in_as_editor(:cma_editor)
 
-    publishing_api_has_content(cma_cases, hash_including(document_type: CmaCase.document_type))
+    stub_publishing_api_has_content(cma_cases, hash_including(document_type: CmaCase.document_type))
     cma_cases.each do |cma_case|
-      publishing_api_has_item(cma_case)
+      stub_publishing_api_has_item(cma_case)
     end
   end
 
   context "from the index" do
-    let(:cma_cases) {
+    let(:cma_cases) do
       [
-        FactoryGirl.create(:cma_case,
+        FactoryBot.create(
+          :cma_case,
           title: "Example CMA Case",
           description: "This is the summary of example CMA case",
           publication_state: "draft",
@@ -23,7 +24,7 @@ RSpec.feature "Viewing a specific case", type: :feature do
             "body" => [
               {
                 "content_type" => "text/govspeak",
-                "content" => "## Header" + ("\r\n\r\nThis is the long body of an example CMA case")
+                "content" => "## Header" + "\r\n\r\nThis is the long body of an example CMA case",
               },
             ],
             "metadata" => {
@@ -33,12 +34,13 @@ RSpec.feature "Viewing a specific case", type: :feature do
               "closed_date" => "2015-01-01",
               "case_type" => "ca98-and-civil-cartels",
               "case_state" => "closed",
-              "market_sector" => ["energy"],
+              "market_sector" => %w[energy],
               "outcome_type" => "ca98-no-grounds-for-action-non-infringement",
-            }
-          })
+            },
+          },
+        ),
       ]
-    }
+    end
 
     scenario "displays the metadata" do
       visit "/cma-cases"
@@ -59,26 +61,31 @@ RSpec.feature "Viewing a specific case", type: :feature do
 
   scenario "that doesn't exist" do
     content_id = "a-case-that-doesnt-exist"
-    publishing_api_does_not_have_item(content_id)
+    url = GdsApi::TestHelpers::PublishingApi::PUBLISHING_API_V2_ENDPOINT + "/content/" + content_id
+    stub_request(:get, url)
+      .with(query: hash_including(locale: "en"))
+      .to_return(status: 404, body: resource_not_found(content_id, "content item").to_json, headers: {})
 
-    visit "/cma-cases/#{content_id}"
+    visit "/cma-cases/#{content_id}:en"
 
     expect(page.current_path).to eq("/cma-cases")
     expect(page).to have_content("Document not found")
   end
 
   context "bulk publishing" do
-    let(:cma_cases) {
+    let(:cma_cases) do
       [
-        FactoryGirl.create(:cma_case,
+        FactoryBot.create(
+          :cma_case,
           title: "Bulk published CMA Case",
           details: {
             "metadata" => {
               "bulk_published" => true,
-            }
-          })
+            },
+          },
+        ),
       ]
-    }
+    end
 
     scenario "the document has been bulk published" do
       visit "/cma-cases"
@@ -89,27 +96,35 @@ RSpec.feature "Viewing a specific case", type: :feature do
   end
 
   context "attachments" do
-    let(:cma_cases) {
+    let(:cma_cases) do
       [
-        FactoryGirl.create(:cma_case,
+        FactoryBot.create(
+          :cma_case,
           title: "CMA Case without attachments",
-          details: { attachments: [] }),
-        FactoryGirl.create(:cma_case,
+          details: { attachments: [] },
+        ),
+        FactoryBot.create(
+          :cma_case,
           title: "CMA Case with attachments",
           details: {
             attachments: [
-              FactoryGirl.create(:attachment_payload,
-                title: 'first attachment',
+              FactoryBot.create(
+                :attachment_payload,
+                title: "first attachment",
                 created_at: "2015-12-01T10:12:26+00:00",
-                updated_at: "2015-12-02T10:12:26+00:00"),
-              FactoryGirl.create(:attachment_payload,
-                title: 'second attachment',
+                updated_at: "2015-12-02T10:12:26+00:00",
+              ),
+              FactoryBot.create(
+                :attachment_payload,
+                title: "second attachment",
                 created_at: "2015-12-03T10:12:26+00:00",
-                updated_at: "2015-12-04T10:12:26+00:00"),
-            ]
-          }),
+                updated_at: "2015-12-04T10:12:26+00:00",
+              ),
+            ],
+          },
+        ),
       ]
-    }
+    end
 
     scenario "Viewing a document without attachments" do
       visit "/cma-cases"
@@ -135,54 +150,65 @@ RSpec.feature "Viewing a specific case", type: :feature do
   end
 
   context "Viewing publication states" do
-    let(:cma_cases) {
+    let(:cma_cases) do
       [
-        FactoryGirl.create(:cma_case,
+        FactoryBot.create(
+          :cma_case,
           title: "Example Draft",
           publication_state: "draft",
-          state_history: { "1" => "draft" }
-                          ),
-        FactoryGirl.create(:cma_case,
+          state_history: { "1" => "draft" },
+        ),
+        FactoryBot.create(
+          :cma_case,
           title: "Example Published",
           publication_state: "published",
-          state_history: { "1" => "published" }
-                          ),
-        FactoryGirl.create(:cma_case,
+          state_history: { "1" => "published" },
+        ),
+        FactoryBot.create(
+          :cma_case,
           title: "Example Unpublished",
           publication_state: "unpublished",
-          state_history: { "1" => "unpublished" }
-                          ),
-        FactoryGirl.create(:cma_case,
+          state_history: { "1" => "unpublished" },
+        ),
+        FactoryBot.create(
+          :cma_case,
           title: "Example Published with new draft",
           publication_state: "draft",
           state_history: {
             "1" => "published",
-            "2" => "draft"
-          }),
-        FactoryGirl.create(:cma_case,
+            "2" => "draft",
+          },
+        ),
+        FactoryBot.create(
+          :cma_case,
           title: "Example Unpublished with new draft",
           publication_state: "draft",
           state_history: {
             "1" => "unpublished",
-            "2" => "draft"
-          }),
-        FactoryGirl.create(:cma_case,
+            "2" => "draft",
+          },
+        ),
+        FactoryBot.create(
+          :cma_case,
           title: "More states",
           publication_state: "draft",
           state_history: {
             "1" => "unpublished",
             "2" => "published",
-            "3" => "draft"
-          }),
-        FactoryGirl.create(:cma_case,
+            "3" => "draft",
+          },
+        ),
+        FactoryBot.create(
+          :cma_case,
           title: "More states Published",
           publication_state: "published",
           state_history: {
             "1" => "unpublished",
-            "2" => "published"
-          }),
+            "2" => "published",
+          },
+        ),
       ]
-    }
+    end
 
     scenario "Viewing a document with a draft state" do
       visit "/cma-cases"
@@ -251,6 +277,20 @@ RSpec.feature "Viewing a specific case", type: :feature do
       within(".metadata-list") do
         expect(page).to have_content("Publication state unpublished with new draft")
       end
+    end
+  end
+
+  context "when a published item exists with the same base path" do
+    let(:content_id) { SecureRandom.uuid }
+    let(:draft) { FactoryBot.create(:cma_case, content_id: content_id, title: "Example draft", base_path: "/cma-cases/foo") }
+
+    scenario "displays warnings" do
+      stub_request(:get, %r{/v2/content/#{content_id}})
+        .to_return(status: 200, body: draft.merge(warnings: { "content_item_blocking_publish" => true }).to_json)
+
+      visit "/cma-cases/#{content_id}"
+
+      expect(page).to have_content("Warning: This document's URL is already used on GOV.UK. You can't publish it until you change the title.")
     end
   end
 end

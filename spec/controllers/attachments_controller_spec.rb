@@ -1,8 +1,9 @@
 require "spec_helper"
 
 RSpec.describe AttachmentsController, type: :controller do
-  let(:cma_case) {
-    FactoryGirl.create(:cma_case,
+  let(:cma_case) do
+    FactoryBot.create(
+      :cma_case,
       details: {
         "attachments" => [
           {
@@ -11,7 +12,7 @@ RSpec.describe AttachmentsController, type: :controller do
             "content_type" => "application/jpeg",
             "title" => "asylum report image title",
             "created_at" => "2015-12-03T16:59:13+00:00",
-            "updated_at" => "2015-12-03T16:59:13+00:00"
+            "updated_at" => "2015-12-03T16:59:13+00:00",
           },
           {
             "content_id" => "ec3f6901-4156-4720-b4e5-f04c0b152141",
@@ -19,75 +20,83 @@ RSpec.describe AttachmentsController, type: :controller do
             "content_type" => "application/pdf",
             "title" => "asylum report pdf title",
             "created_at" => "2015-12-03T16:59:13+00:00",
-            "updated_at" => "2015-12-03T16:59:13+00:00"
-          }
-        ]
-      })
-  }
+            "updated_at" => "2015-12-03T16:59:13+00:00",
+          },
+        ],
+      },
+    )
+  end
 
-  let(:document_type_slug) { 'cma-cases' }
-  let(:document_content_id) { cma_case['content_id'] }
-  let(:attachment_content_id) { cma_case['details']['attachments'][0]['content_id'] }
+  let(:document_type_slug) { "cma-cases" }
+  let(:document_content_id) { cma_case["content_id"] }
+  let(:document_locale) { "en" }
+  let(:attachment_content_id) { cma_case["details"]["attachments"][0]["content_id"] }
 
   let(:asset_id) { SecureRandom.uuid }
   let(:file_name) { "cma_case_image.jpg" }
   let(:file_url) { "http://assets-origin.dev.gov.uk/media/#{asset_id}/#{file_name}" }
 
   let(:asset_url) { "http://assets-origin.dev.gov.uk/media/#{asset_id}/#{file_name}" }
-  let(:asset_manager_response) {
+  let(:asset_manager_response) do
     {
-         id: 'http://asset-manager.dev.gov.uk/assets/another_image_id',
-        file_url: asset_url
+      id: "http://asset-manager.dev.gov.uk/assets/another_image_id",
+      file_url: asset_url,
     }
-  }
+  end
 
   before do
     log_in_as_gds_editor
-    publishing_api_has_item(cma_case)
+    stub_publishing_api_has_item(cma_case)
   end
 
   describe "POST create" do
-    let(:attachment) {
+    let(:file) { Rack::Test::UploadedFile.new("spec/support/images/cma_case_image.jpg", "image/jpg") }
+    let(:attachment) do
       {
-        file: Rack::Test::UploadedFile.new("spec/support/images/cma_case_image.jpg", "image/jpg"),
-        title: 'test attachment upload'
+        file: file,
+        title: "test attachment upload",
       }
-    }
+    end
+
+    let(:no_file_attachment) do
+      {
+        file: nil,
+        title: "no file attached",
+      }
+    end
 
     it "redirect to the specialist document edit page" do
-      document = CmaCase.find(document_content_id)
+      document = CmaCase.find(document_content_id, document_locale)
       allow_any_instance_of(AttachmentsController).to receive(:fetch_document).and_return(document)
 
       stub_any_publishing_api_put_content
       stub_any_publishing_api_patch_links
 
       stub_request(:post, "#{Plek.find('asset-manager')}/assets")
-        .with(body: %r{.*})
         .to_return(body: JSON.dump(asset_manager_response), status: 201)
 
-      post :create, document_type_slug: document_type_slug, document_content_id: document_content_id, attachment: attachment
+      post :create, params: { document_type_slug: document_type_slug, document_content_id_and_locale: "#{document_content_id}:#{document_locale}", attachment: attachment }
 
       expect(document.attachments.count).to eq(3)
-      expect(response).to redirect_to(edit_document_path(document_type_slug: document_type_slug, content_id: document_content_id))
+      expect(response).to redirect_to(edit_document_path(document_type_slug: document_type_slug, content_id_and_locale: "#{document_content_id}:#{document_locale}"))
     end
 
     it "shows an error if no attachment is uploaded" do
-      document = CmaCase.find(document_content_id)
+      document = CmaCase.find(document_content_id, document_locale)
       allow_any_instance_of(AttachmentsController).to receive(:fetch_document).and_return(document)
 
-      post :create, document_type_slug: document_type_slug, document_content_id: document_content_id, attachment: nil
-
+      post :create, params: { document_type_slug: document_type_slug, document_content_id_and_locale: "#{document_content_id}:#{document_locale}", attachment: no_file_attachment }
       expect(response).to redirect_to(new_document_attachment_path(document_type_slug: document_type_slug))
     end
   end
 
   describe "GET edit" do
     it "renders the edit attachment form" do
-      document = CmaCase.find(document_content_id)
+      document = CmaCase.find(document_content_id, document_locale)
       attachment = document.attachments.find(attachment_content_id)
       allow_any_instance_of(AttachmentsController).to receive(:fetch_document).and_return(document)
 
-      get :edit, document_type_slug: document_type_slug, document_content_id: document_content_id, attachment_content_id: attachment_content_id
+      get :edit, params: { document_type_slug: document_type_slug, document_content_id_and_locale: "#{document_content_id}:#{document_locale}", attachment_content_id: attachment_content_id }
 
       expect(assigns(:attachment)).to eq(attachment)
       expect(response).to render_template :edit
@@ -95,8 +104,15 @@ RSpec.describe AttachmentsController, type: :controller do
   end
 
   describe "PUT update" do
+    let(:updated_file) { Rack::Test::UploadedFile.new("spec/support/images/updated_cma_case_image.jpg", "mime/type") }
+    let(:updated_attachment) do
+      {
+        file: updated_file,
+        title: "updated test attachment upload",
+      }
+    end
     it "redirects to the specalist document edit page" do
-      document = CmaCase.find(document_content_id)
+      document = CmaCase.find(document_content_id, document_locale)
       allow_any_instance_of(AttachmentsController).to receive(:fetch_document).and_return(document)
 
       stub_any_publishing_api_put_content
@@ -104,10 +120,25 @@ RSpec.describe AttachmentsController, type: :controller do
       stub_request(:put, %r{#{Plek.find('asset-manager')}/assets/.*})
         .to_return(body: JSON.dump(asset_manager_response), status: 201)
 
-      post :update, document_type_slug: document_type_slug, document_content_id: document_content_id, attachment_content_id: attachment_content_id, attachment: { file: Rack::Test::UploadedFile.new("spec/support/images/updated_cma_case_image.jpg", "mime/type"), title: 'updated test attachment upload' }
+      post :update, params: { document_type_slug: document_type_slug, document_content_id_and_locale: "#{document_content_id}:#{document_locale}", attachment_content_id: attachment_content_id, attachment: updated_attachment }
 
       expect(document.attachments.count).to eq(2)
-      expect(response).to redirect_to(edit_document_path(document_type_slug: document_type_slug, content_id: document_content_id))
+      expect(response).to redirect_to(edit_document_path(document_type_slug: document_type_slug, content_id_and_locale: "#{document_content_id}:#{document_locale}"))
+    end
+  end
+
+  describe "DELETE destroy" do
+    it "redirects to the specialist document edit page" do
+      document = CmaCase.find(document_content_id, document_locale)
+      allow_any_instance_of(AttachmentsController).to receive(:fetch_document).and_return(document)
+      stub_any_publishing_api_put_content
+      stub_any_publishing_api_patch_links
+      stub_request(:delete, %r{#{Plek.find('asset-manager')}/assets/.*})
+        .to_return(body: JSON.dump(asset_manager_response), status: 201)
+      expect(document.attachments.count).to eq(2)
+      delete :destroy, params: { document_type_slug: document_type_slug, document_content_id_and_locale: "#{document_content_id}:#{document_locale}", attachment_content_id: attachment_content_id }
+      expect(document.attachments.count).to eq(1)
+      expect(response).to redirect_to(edit_document_path(document_type_slug: document_type_slug, content_id_and_locale: "#{document_content_id}:#{document_locale}"))
     end
   end
 end

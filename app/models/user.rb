@@ -2,9 +2,7 @@ class User
   include Mongoid::Document
   include GDS::SSO::User
 
-  def self.collection_name
-    "specialist_publisher_users"
-  end
+  store_in collection: :specialist_publisher_users
 
   field :uid, type: String
   field :email, type: String
@@ -17,6 +15,6 @@ class User
   field :disabled, type: Boolean, default: false
 
   def gds_editor?
-    permissions.include?('gds_editor')
+    permissions.include?("gds_editor")
   end
 end

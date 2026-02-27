@@ -1,3 +1,5 @@
+@import "govuk_admin_template";
+
 .page-header {
   border-bottom: none;
 
@@ -8,14 +10,14 @@
     margin-top: 5px;
     font-weight: normal;
     padding: 0;
+  }
 
-    & li {
-      display: inline;
-      list-style: none;
+  .document-slug li {
+    display: inline;
+    list-style: none;
+  }
 
-      & + li:before {
-        content: "– ";
-      }
-    }
+  .document-slug li + li:before {
+    content: "– ";
   }
 }
