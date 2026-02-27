@@ -1,5 +1,4 @@
-require 'spec_helper'
-require_relative "../../../app/presenters/finders/finder_content_item_presenter"
+require "spec_helper"
 
 RSpec.describe FinderContentItemPresenter do
   describe "#to_json" do
@@ -9,7 +8,7 @@ RSpec.describe FinderContentItemPresenter do
         payload = JSON.parse(read_file)
 
         presenter = FinderContentItemPresenter.new(
-          payload, "2016-01-01T00:00:00-00:00"
+          payload, "2016-01-01T00:00:00-00:00".to_time
         )
 
         presented_data = presenter.to_json

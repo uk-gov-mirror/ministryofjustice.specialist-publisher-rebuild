@@ -1,4 +1,5 @@
-desc "Run govuk-lint with similar params to CI"
-task "lint" do
-  sh "bundle exec govuk-lint-ruby --format clang app config Gemfile lib spec"
+desc "Run all linters"
+task lint: :environment do
+  sh "bundle exec rubocop"
+  sh "yarn run lint"
 end

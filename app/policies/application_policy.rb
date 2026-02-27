@@ -6,18 +6,21 @@ class ApplicationPolicy
   end
 
   def user_organisation_owns_document_type?
-    document_class.organisations.include?(user.organisation_content_id)
+    document_class.schema_organisations.include?(user.organisation_content_id) ||
+      document_class.schema_editing_organisations.include?(user.organisation_content_id)
   end
 
   def departmental_editor?
-    user_organisation_owns_document_type? && user.permissions.include?('editor')
+    user_organisation_owns_document_type? && user.permissions.include?("editor")
   end
 
   def writer?
     user_organisation_owns_document_type?
   end
 
-  def gds_editor?
-    user.gds_editor?
+  delegate :gds_editor?, to: :user
+
+  def document_type_editor?
+    user.permissions.include?(document_class.name.underscore + "_editor")
   end
 end
