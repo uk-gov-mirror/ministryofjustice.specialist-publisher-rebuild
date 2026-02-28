@@ -1,11 +1,11 @@
-require 'spec_helper'
-require 'gds_api/test_helpers/asset_manager'
+require "spec_helper"
+require "gds_api/test_helpers/asset_manager"
 RSpec.describe Attachment do
   include GdsApi::TestHelpers::AssetManager
 
   describe ".all_from_publishing_api" do
     context "when the payload has attachments in details" do
-      let(:attachment_payload) { FactoryGirl.create(:attachment_payload) }
+      let(:attachment_payload) { FactoryBot.create(:attachment_payload) }
 
       let(:payload) do
         { "details" => { "attachments" => [attachment_payload] } }
@@ -27,9 +27,9 @@ RSpec.describe Attachment do
       end
 
       context "when a content id is not provided" do
-        let(:attachment_payload) {
-          FactoryGirl.create(:attachment_payload, content_id: nil)
-        }
+        let(:attachment_payload) do
+          FactoryBot.create(:attachment_payload, content_id: nil)
+        end
 
         it "generates a content id" do
           allow(SecureRandom).to receive(:uuid).and_return("some-content-id")
@@ -53,23 +53,23 @@ RSpec.describe Attachment do
   end
 
   describe "#new without title" do
-    let(:attachment) {
+    let(:attachment) do
       Attachment.new(
-        title: '',
+        title: "",
         file: ActionDispatch::Http::UploadedFile.new(
           tempfile: "spec/support/images/cma_case_image.jpg",
           filename: File.basename("spec/support/images/cma_case_image.jpg"),
-          original_filename: 'cma_case_image.jpg',
-          type: "image/jpeg"
+          original_filename: "cma_case_image.jpg",
+          type: "image/jpeg",
         ),
       )
-    }
+    end
 
     it "should set content_id and file attributes with data from attachments new form" do
       expect(attachment.content_id).to be_truthy
       expect(attachment.file.content_type).to eq("image/jpeg")
       expect(attachment.file.tempfile).to eq("spec/support/images/cma_case_image.jpg")
-      expect(attachment.title).to eq('cma_case_image')
+      expect(attachment.title).to eq("cma_case_image")
       expect(attachment.created_at).to be(nil)
       expect(attachment.updated_at).to be(nil)
       expect(attachment.url).to be(nil)
@@ -79,15 +79,15 @@ RSpec.describe Attachment do
     it "should set content_id, title, url, created_at and updated_at with data from publishing-api" do
       content_id = SecureRandom.uuid
       attachment = Attachment.new(
-        title: '',
+        title: "",
         content_id: content_id,
         url: "/path/to/file/in/asset/manager/cma_case_image.jpg",
-        content_type: 'image/jpg',
+        content_type: "image/jpg",
         created_at: "2015-12-03T16:59:13+00:00",
         updated_at: "2015-12-03T16:59:13+00:00",
       )
       expect(attachment.content_id).to eq(content_id)
-      expect(attachment.title).to eq('cma_case_image')
+      expect(attachment.title).to eq("cma_case_image")
       expect(attachment.url).to eq("/path/to/file/in/asset/manager/cma_case_image.jpg")
       expect(attachment.content_type).to eq("image/jpg")
       expect(attachment.created_at).to eq("2015-12-03T16:59:13+00:00")
@@ -97,23 +97,23 @@ RSpec.describe Attachment do
   end
 
   describe "#new with title" do
-    let(:attachment) {
+    let(:attachment) do
       Attachment.new(
-        title: 'new attachment',
+        title: "new attachment",
         file: ActionDispatch::Http::UploadedFile.new(
           tempfile: "spec/support/images/cma_case_image.jpg",
           filename: File.basename("spec/support/images/cma_case_image.jpg"),
-          original_filename: 'cma_case_image.jpg',
-          type: "image/jpeg"
+          original_filename: "cma_case_image.jpg",
+          type: "image/jpeg",
         ),
       )
-    }
+    end
 
     it "should set content_id and file attributes with data from attachments new form" do
       expect(attachment.content_id).to be_truthy
       expect(attachment.file.content_type).to eq("image/jpeg")
       expect(attachment.file.tempfile).to eq("spec/support/images/cma_case_image.jpg")
-      expect(attachment.title).to eq('new attachment')
+      expect(attachment.title).to eq("new attachment")
       expect(attachment.created_at).to be(nil)
       expect(attachment.updated_at).to be(nil)
       expect(attachment.url).to be(nil)
@@ -123,15 +123,15 @@ RSpec.describe Attachment do
     it "should set content_id, title, url, created_at and updated_at with data from publishing-api" do
       content_id = SecureRandom.uuid
       attachment = Attachment.new(
-        title: 'new attachment',
+        title: "new attachment",
         content_id: content_id,
         url: "/path/to/file/in/asset/manager/cma_case_image.jpg",
-        content_type: 'image/jpg',
+        content_type: "image/jpg",
         created_at: "2015-12-03T16:59:13+00:00",
         updated_at: "2015-12-03T16:59:13+00:00",
       )
       expect(attachment.content_id).to eq(content_id)
-      expect(attachment.title).to eq('new attachment')
+      expect(attachment.title).to eq("new attachment")
       expect(attachment.url).to eq("/path/to/file/in/asset/manager/cma_case_image.jpg")
       expect(attachment.content_type).to eq("image/jpg")
       expect(attachment.created_at).to eq("2015-12-03T16:59:13+00:00")
@@ -140,31 +140,39 @@ RSpec.describe Attachment do
     end
   end
 
+  describe ".valid_filetype?" do
+    it "should check that a file extension has been white listed" do
+      tempfile = Tempfile.new(["foobar", ".jpeg"])
+      extension = File.extname(tempfile)
+      allow_any_instance_of(File).to receive(:tempfile).and_return(extension)
+      expect(EXTENSION_WHITE_LIST.include?(File.extname(tempfile))).to eq(false)
+    end
+  end
 
-  describe "#update_attributes" do
+  describe "#update_properties" do
     let(:content_id) { SecureRandom.uuid }
 
-    let(:attachment) {
+    let(:attachment) do
       Attachment.new(
-        title: 'test attachment',
+        title: "test attachment",
         content_id: content_id,
         url: "/path/to/file/in/asset/manager",
-        content_type: 'image/jpg',
+        content_type: "image/jpg",
         created_at: "2015-12-03T16:59:13+00:00",
         updated_at: "2015-12-03T16:59:13+00:00",
       )
-    }
+    end
 
-    let(:http_file_upload) {
+    let(:http_file_upload) do
       ActionDispatch::Http::UploadedFile.new(
         tempfile: "spec/support/images/updated_cma_case_image.jpg",
         filename: File.basename("spec/support/images/updated_cma_case_image.jpg"),
-        type: "image/jpeg"
+        type: "image/jpeg",
       )
-    }
+    end
 
     it "should update the title, file and has_changed attributes" do
-      attachment.update_attributes(file: http_file_upload, title: "updated attachment title")
+      attachment.update_properties(file: http_file_upload, title: "updated attachment title")
 
       expect(attachment.file).to eq(http_file_upload)
       expect(attachment.title).to eq("updated attachment title")
@@ -172,27 +180,27 @@ RSpec.describe Attachment do
   end
 
   describe "#upload" do
-    let(:url) { '/uploaded/document.jpg' }
-    let(:attachment) {
+    let(:url) { "/uploaded/document.jpg" }
+    let(:attachment) do
       Attachment.new(
-        title: 'test attachment',
+        title: "test attachment",
         file: ActionDispatch::Http::UploadedFile.new(
           tempfile: Tempfile.new("cma_case_image.jpg"),
           filename: File.basename("spec/support/images/cma_case_image.jpg"),
-          type: "image/jpeg"
+          type: "image/jpeg",
         ),
       )
-    }
+    end
 
     it "returns true on successful upload and sets the url" do
-      asset_manager_receives_an_asset(url)
+      stub_asset_manager_receives_an_asset(url)
 
       expect(attachment.upload).to eq(true)
       expect(attachment.url).to eq(url)
     end
 
     it "returns false on failed upload and does not set the url" do
-      asset_manager_upload_failure
+      stub_asset_manager_upload_failure
 
       expect(attachment.upload).to eq(false)
       expect(attachment.url).to be_nil

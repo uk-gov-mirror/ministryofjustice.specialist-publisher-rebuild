@@ -1,23 +1,25 @@
-require 'spec_helper'
+require "spec_helper"
 
 RSpec.feature "Searching and filtering", type: :feature do
   let(:test_date) { Date.new(2016, 1, 11) }
-  let(:cma_cases) {
+  let(:cma_cases) do
     ten_example_cases = 10.times.collect do |n|
-      FactoryGirl.create(:cma_case,
+      FactoryBot.create(
+        :cma_case,
         "title" => "Example CMA Case #{n}",
         "description" => "This is the summary of example CMA case #{n}",
         "base_path" => "/cma-cases/example-cma-case-#{n}",
         "publication_state" => "draft",
         "last_edited_at" => (test_date - (n + 1).days).iso8601,
-        "public_updated_at" => (test_date - (10 - n).days).iso8601)
+        "public_updated_at" => (test_date - (10 - n).days).iso8601,
+      )
     end
     ten_example_cases[1]["publication_state"] = "published"
     ten_example_cases[1]["state_history"] = { "1" => "published" }
     ten_example_cases[2]["publication_state"] = "draft"
     ten_example_cases[2]["state_history"] = { "1" => "published", "2" => "unpublished", "3" => "draft" }
     ten_example_cases
-  }
+  end
 
   before do
     log_in_as_editor(:cma_editor)
@@ -25,14 +27,14 @@ RSpec.feature "Searching and filtering", type: :feature do
 
   context "visiting the index with results" do
     before do
-      publishing_api_has_content(cma_cases, hash_including(document_type: CmaCase.document_type))
+      stub_publishing_api_has_content(cma_cases, hash_including(document_type: CmaCase.document_type))
     end
 
     scenario "viewing the unfiltered items" do
       visit "/cma-cases"
 
       expect(page.status_code).to eq(200)
-      expect(page).to have_selector('li.document', count: 10)
+      expect(page).to have_selector("li.document", count: 10)
       expect(page).to have_content("Example CMA Case 0")
       expect(page).to have_content("Example CMA Case 1")
       expect(page).to have_content("Example CMA Case 2")
@@ -73,18 +75,18 @@ RSpec.feature "Searching and filtering", type: :feature do
     end
 
     scenario "filtering the items with some results returned" do
-      publishing_api_has_content([cma_cases.first], hash_including(document_type: CmaCase.document_type, q: "0"))
+      stub_publishing_api_has_content([cma_cases.first], hash_including(document_type: CmaCase.document_type, q: "0"))
 
       visit "/cma-cases"
 
       fill_in "Search", with: "0"
       click_button "Search"
       expect(page).to have_content("Example CMA Case 0")
-      expect(page).to have_selector('li.document', count: 1)
+      expect(page).to have_selector("li.document", count: 1)
     end
 
     scenario "filtering the items with no results returned" do
-      publishing_api_has_content([], hash_including(document_type: CmaCase.document_type, q: "abcdef"))
+      stub_publishing_api_has_content([], hash_including(document_type: CmaCase.document_type, q: "abcdef"))
 
       visit "/cma-cases"
       fill_in "Search", with: "abcdef"
@@ -95,7 +97,7 @@ RSpec.feature "Searching and filtering", type: :feature do
 
   context "visiting the index with no results" do
     before do
-      publishing_api_has_content([], hash_including(document_type: CmaCase.document_type))
+      stub_publishing_api_has_content([], hash_including(document_type: CmaCase.document_type))
     end
 
     scenario "viewing the unfiltered items" do
@@ -111,7 +113,7 @@ RSpec.feature "Searching and filtering", type: :feature do
       cma_cases_with_missing_last_edited_at = cma_cases.each { |item| item.merge!("last_edited_at" => nil) }
       expect(cma_cases_with_missing_last_edited_at.sample["last_edited_at"]).to eq(nil)
 
-      publishing_api_has_content(cma_cases_with_missing_last_edited_at, hash_including(document_type: CmaCase.document_type))
+      stub_publishing_api_has_content(cma_cases_with_missing_last_edited_at, hash_including(document_type: CmaCase.document_type))
 
       visit "/cma-cases"
 

@@ -5,52 +5,49 @@ class EmailAlertPresenter
     @document = document
   end
 
-  def to_json
+  def to_json(*_args)
     {
+      title: title,
+      description: summary,
+      change_note: change_note,
       subject: subject,
-      body: body,
       tags: tags,
+      links: links,
       urgent: urgent,
       document_type: document.document_type,
+      email_document_supertype: "other",
+      government_document_supertype: "other",
+      content_id: content_id,
+      public_updated_at: public_updated_at,
+      publishing_app: "specialist-publisher",
+      base_path: base_path,
+      priority: priority,
     }.merge(extra_options)
   end
 
+  delegate :content_id, to: :document
+
 private
 
-  def body
-    if document.document_type == "medical_safety_alert"
-      standard_body("email_alerts/medical_safety_alerts/publication")
-    else
-      standard_body("email_alerts/publication")
-    end
-  end
-
+  # The tags are sent to email-alert-api and matched against subscriberlists.
   def tags
-    {
-      format: document.document_type
-    }.deep_merge(document.format_specific_metadata.reject { |_k, v| v.blank? })
+    metadata_tags = document.format_specific_metadata.reject do |k, v|
+      # remove the lengthy indexable text content present in many document types
+      k == :hidden_indexable_content || v.blank?
+    end
+
+    { format: document.format }.merge(metadata_tags)
   end
 
-  def standard_body(template_path)
-    view_renderer.render(
-      template: template_path,
-      formats: ["html"],
-      locals:   {
-        document_title: document.title,
-        document_summary: document.summary,
-        document_url: File.join(Plek.current.website_root, document.base_path),
-        document_change_note: document.change_note,
-        document_org_title: org_title[document.document_type],
-        document_noun: document_noun[document.document_type],
-        updated_or_published: updated_or_published,
-      }
-    )
+  def links
+    DocumentLinksPresenter.new(document).to_json[:links]
   end
 
   def org_title
     {
       "aaib_report" => "Air Accidents Investigation Branch reports",
       "asylum_support_decision" => "Asylum Support Decision",
+      "business_finance_support_scheme" => "Business finance support scheme",
       "cma_case" => "Competition and Markets Authority cases",
       "countryside_stewardship_grant" => "Countryside Stewardship Grants",
       "employment_appeal_tribunal_decision" => "Employment appeal tribunal decisions",
@@ -62,7 +59,6 @@ private
       "raib_report" => "Rail Accident Investigation Branch reports",
       "tax_tribunal_decision" => "Upper Tribunal (Tax and Chancery Chamber)",
       "utaac_decision" => "Upper Tribunal (Administrative Appeals Chamber)",
-      "vehicle_recalls_and_faults_alert" => "Vehicle recalls and faults",
     }
   end
 
@@ -70,6 +66,7 @@ private
     {
       "aaib_report" => "report",
       "asylum_support_decision" => "decision",
+      "business_finance_support_scheme" => "scheme",
       "cma_case" => "case",
       "countryside_stewardship_grant" => "grant",
       "employment_appeal_tribunal_decision" => "decision",
@@ -81,16 +78,43 @@ private
       "raib_report" => "report",
       "tax_tribunal_decision" => "decision",
       "utaac_decision" => "decision",
-      "vehicle_recalls_and_faults_alert" => "alert",
     }
   end
 
-  def subject
+  def title
     redrafted? ? document.title + " updated" : document.title
+  end
+
+  def summary
+    document.summary
+  end
+
+  def change_note
+    document.change_note
+  end
+
+  def subject
+    title
   end
 
   def urgent
     document.urgent
+  end
+
+  def priority
+    urgent ? "high" : "normal"
+  end
+
+  def footnote
+    document.email_footnote
+  end
+
+  def public_updated_at
+    document.public_updated_at
+  end
+
+  def base_path
+    document.base_path
   end
 
   def updated_or_published
@@ -103,26 +127,7 @@ private
 
   def extra_options
     {
-      header: header,
-      footer: footer,
+      footnote: footnote,
     }.reject { |_k, v| v.nil? }
-  end
-
-  def view_renderer
-    ActionView::Base.new("app/views")
-  end
-
-  def header
-    view_renderer.render(
-      template: "email_alerts/publication_header",
-      formats: ["html"],
-    )
-  end
-
-  def footer
-    view_renderer.render(
-      template: "email_alerts/publication_footer",
-      formats: ["html"],
-    )
   end
 end

@@ -1,0 +1,12 @@
+inherit_gem:
+  rubocop-govuk:
+    - config/default.yml
+    - config/rails.yml
+
+inherit_mode:
+  merge:
+    - Exclude
+
+# This app does not have a DB
+Rails/SaveBang:
+  Enabled: false
