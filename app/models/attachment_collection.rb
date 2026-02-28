@@ -24,12 +24,20 @@ class AttachmentCollection
   end
 
   def has_attachment?(attachment)
-    !!find(attachment.content_id)
+    find(attachment.content_id).present?
   end
 
-  def each(&block)
+  def each
     @attachments.each do |attachment|
-      block.call(attachment)
+      yield(attachment)
+    end
+  end
+
+  def remove(attachment)
+    if attachment.destroy
+      @attachments.delete(attachment)
+    else
+      false
     end
   end
 end

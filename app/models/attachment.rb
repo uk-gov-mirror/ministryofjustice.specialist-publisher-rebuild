@@ -1,11 +1,12 @@
-require "gds_api/asset_manager"
+require "services"
 
 class Attachment < Document
   attr_accessor :title, :file, :content_type, :url, :content_id, :created_at, :updated_at, :being_updated
 
   def self.all_from_publishing_api(payload)
-    return [] unless payload.fetch('details', {}).key?('attachments')
-    payload['details']['attachments'].map { |attachment| Attachment.new(attachment) }
+    return [] unless payload.fetch("details", {}).key?("attachments")
+
+    payload["details"]["attachments"].map { |attachment| Attachment.new(attachment) }
   end
 
   def initialize(params = {})
@@ -21,9 +22,14 @@ class Attachment < Document
     @being_updated = false
   end
 
-  def update_attributes(new_params)
+  def self.valid_filetype?(file)
+    extension = File.extname(file.tempfile)
+    EXTENSION_WHITE_LIST.include? extension
+  end
+
+  def update_properties(new_params)
     new_params.each do |k, v|
-      self.public_send(:"#{k}=", v)
+      public_send(:"#{k}=", v)
     end
   end
 
@@ -41,33 +47,40 @@ class Attachment < Document
 
   def upload
     response = Services.asset_api.create_asset(file: @file)
-    @url = response.file_url
+    @url = response["file_url"]
     true
   rescue GdsApi::BaseError => e
-    Airbrake.notify(e)
+    GovukError.notify(e)
     false
   end
 
   def update
     response = Services.asset_api.update_asset(id_from_url, file: @file)
-    @url = response.file_url
+    @url = response["file_url"]
     true
   rescue GdsApi::BaseError => e
-    Airbrake.notify(e)
+    GovukError.notify(e)
     false
   end
 
   def id_from_url
-    url_array = @url.split('/')
+    url_array = @url.split("/")
     url_array[url_array.length - 2]
   end
 
   def remove_extension_from_filename(filename)
-    filename.split('.').first
+    filename.split(".").first
+  end
+
+  def destroy
+    Services.asset_api.delete_asset(id_from_url)
+  rescue GdsApi::BaseError => e
+    GovukError.notify(e)
+    false
   end
 
   def filename
-    url.split('/').last
+    url.split("/").last
   end
 
   def snippet
